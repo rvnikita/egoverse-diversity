@@ -41,6 +41,7 @@ CLIPS = ROOT / "out" / "cup_mp4"
 RESULTS = ROOT / "results"
 SHEETS = RESULTS / "sheets"
 
+SEEDS_COV = 12       # seeds per point on the coverage curve; sd is ~1 so this is plenty
 K_DEMO = 32          # the two subsets shown side by side on the dashboard
 SEED_DEMO = 0
 
@@ -228,7 +229,7 @@ def main() -> int:
         for a, v in axes.items():
             means, sds = [], []
             for k in budgets:
-                c = [len(set(v[pick(kind, k, s)].tolist())) for s in range(30)]
+                c = [len(set(v[pick(kind, k, s)].tolist())) for s in range(SEEDS_COV)]
                 means.append(round(float(np.mean(c)), 2))
                 sds.append(round(float(np.std(c)), 2))
             cov[a]["by"][kind] = {"mean": means, "sd": sds}

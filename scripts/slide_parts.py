@@ -223,7 +223,7 @@ def body(A: dict, J: dict) -> str:
       &#8212; they look unlike successes, so they rank high without labels.</div>
     <div class="s-qr">{qr_svg()}
       <div><div class="s-repo">github.com/rvnikita/<br>egoverse-diversity</div>
-        <div class="s-repos"><b style="color:#c3c2b7">python run_all.py</b> &#183; 6 s
+        <div class="s-repos"><b style="color:#c3c2b7">python run_all.py</b> &#183; 40 s
           &#183; no GPU, no keys</div></div>
     </div>
   </div>
