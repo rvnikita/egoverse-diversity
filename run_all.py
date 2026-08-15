@@ -24,14 +24,18 @@ ROOT = pathlib.Path(__file__).resolve().parent
 PY = sys.executable
 
 STEPS = [
-    ("selection experiment (stratified split)",
-     [PY, "scripts/select_experiment.py", "--split", "stratified"]),
-    ("selection experiment (session split — whole recording days held out)",
-     [PY, "scripts/select_experiment.py", "--split", "session"]),
-    ("falsification + label-free ranking + projection",
+    ("scoring, coverage, falsification sweep, 3D projection, contact sheets",
      [PY, "scripts/analysis.py"]),
     ("dashboard", [PY, "scripts/build_dashboard.py"]),
 ]
+
+# Not run by default:
+#   scripts/llm_judge.py        needs OPENAI_API_KEY and spends ~$0.02; its output is
+#                               committed at results/llm_judge.json so the dashboard
+#                               renders the comparison without re-running it.
+#   scripts/select_experiment.py  measures how each selector's subset performs as TRAINING
+#                               data — Track 1/3 territory, not part of this submission.
+#                               Its cached CSVs are what the "subsets scored" figure counts.
 
 
 def main() -> int:

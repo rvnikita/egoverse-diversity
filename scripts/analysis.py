@@ -200,6 +200,42 @@ def main() -> int:
     print(f"  centroid distance {fa['centroid_dist_failures']} vs "
           f"{fa['centroid_dist_successes']}   Mann-Whitney p={fa['mannwhitney_p']:.2e}")
 
+    # ------------------------------------------------- 3b. metadata coverage
+    # The external check on the score. `objects`, `operator` and the recording date are
+    # registry metadata the encoder never saw — so if a subset the score calls "more
+    # diverse" also covers more of them, the score is tracking something real and not
+    # just its own geometry.
+    print("\n== metadata coverage: external ground truth the embedding never saw ==")
+    from sklearn.cluster import KMeans
+
+    op = d["operator"].astype(str)
+    day = np.array([h[:10] for h in ep_hash])
+    axes = {"prop combos": combo, "operators": op, "recording days": day}
+
+    def pick(kind, k, s):
+        if kind == "random":
+            return np.random.default_rng(s).choice(n, k, replace=False)
+        if kind == "diverse":
+            return farthest_point(V, k, seed=s)
+        km = KMeans(n_clusters=k, n_init=3, random_state=s).fit(V)
+        return np.unique((V @ km.cluster_centers_.T).argmax(axis=0))
+
+    budgets = [4, 8, 16, 32, 64]
+    cov: dict = {a: {"total": int(len(set(v.tolist()))), "budgets": budgets, "by": {}}
+                 for a, v in axes.items()}
+    for kind in ("random", "diverse"):
+        for a, v in axes.items():
+            means, sds = [], []
+            for k in budgets:
+                c = [len(set(v[pick(kind, k, s)].tolist())) for s in range(30)]
+                means.append(round(float(np.mean(c)), 2))
+                sds.append(round(float(np.std(c)), 2))
+            cov[a]["by"][kind] = {"mean": means, "sd": sds}
+    out["coverage"] = cov
+    for a in axes:
+        r_, f_ = cov[a]["by"]["random"]["mean"], cov[a]["by"]["diverse"]["mean"]
+        print(f"  {a:16s} (of {cov[a]['total']:2d})  random {r_}  diverse {f_}")
+
     # ------------------------------------------------- 4. the two demo subsets
     idx_rand = np.random.default_rng(SEED_DEMO).choice(n, K_DEMO, replace=False)
     idx_fps = farthest_point(V, K_DEMO, seed=SEED_DEMO)
@@ -220,11 +256,33 @@ def main() -> int:
     # ------------------------------------------------- 5. projection + contact sheets
     from sklearn.decomposition import PCA
 
-    P = PCA(n_components=2, random_state=0).fit_transform(V)
-    P = (P - P.mean(0)) / P.std(0)
-    out["projection"] = {"x": np.round(P[:, 0], 3).tolist(),
-                         "y": np.round(P[:, 1], 3).tolist(),
-                         "failure": y.astype(int).tolist()}
+    P3 = PCA(n_components=3, random_state=0).fit_transform(V)
+    P3 = (P3 - P3.mean(0)) / P3.std(0)
+    out["projection"] = {"x": np.round(P3[:, 0], 3).tolist(),
+                         "y": np.round(P3[:, 1], 3).tolist(),
+                         "z": np.round(P3[:, 2], 3).tolist(),
+                         "combo": [sorted(set(combo.tolist())).index(c) for c in combo]}
+
+    # ------------------------------------------------- 6. compute-once economics
+    # The structural argument: embedding is a one-off index cost, an LLM judge is a
+    # per-query cost. Count how many subset scorings this repo's experiment actually did.
+    try:
+        n_scorings = sum(
+            len(pd.read_csv(RESULTS / f"selection_{s}.csv"))
+            for s in ("stratified", "session")
+            if (RESULTS / f"selection_{s}.csv").exists())
+    except Exception:  # noqa: BLE001
+        n_scorings = 0
+    out["economics"] = {
+        "index_gpu_seconds": round(float(d["gpu_seconds"]), 1),
+        "index_cost_usd": round(float(d["gpu_seconds"]) / 3600 * 0.80, 4),  # L4 ≈ $0.80/h
+        "subset_scorings_performed": int(n_scorings),
+        "marginal_cost_per_scoring_usd": 0.0,
+        "note": "index built once; every subsequent subset score is numpy on cached vectors",
+    }
+    print(f"\n== economics ==\n  index: {out['economics']['index_gpu_seconds']}s GPU "
+          f"= ${out['economics']['index_cost_usd']:.4f}, then "
+          f"{n_scorings:,} subset scorings at zero marginal cost")
 
     SHEETS.mkdir(parents=True, exist_ok=True)
     if CLIPS.exists():

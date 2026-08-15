@@ -1,0 +1,82 @@
+{
+  "model": "gpt-4o",
+  "repeats": 5,
+  "prompt": "This image is a grid of frames, one frame taken from each of 32 robot manipulation video episodes of the same task (placing a cup on a saucer).\n\nRate the DIVERSITY of this set of 32 episodes on a scale from 0 to 100, where 0 means all 32 episodes are essentially identical and 100 means they are maximally varied (different objects, placements, outcomes, viewpoints).\n\nReply with strict JSON only: {\"diversity\": <number 0-100>, \"reason\": \"<one short sentence>\"}",
+  "price_per_1m_in_out_usd": [
+    2.5,
+    10.0
+  ],
+  "random": {
+    "scores": [
+      60.0,
+      30.0,
+      40.0,
+      40.0,
+      40.0
+    ],
+    "mean": 42.0,
+    "sd": 9.798,
+    "spread": 30.0,
+    "latency_s_mean": 1.47,
+    "cost_usd": 0.00817
+  },
+  "diverse": {
+    "scores": [
+      45.0,
+      30.0,
+      40.0,
+      40.0,
+      70.0
+    ],
+    "mean": 45.0,
+    "sd": 13.416,
+    "spread": 40.0,
+    "latency_s_mean": 1.34,
+    "cost_usd": 0.00809
+  },
+  "random_temp0": {
+    "scores": [
+      60.0,
+      70.0,
+      70.0,
+      70.0,
+      60.0
+    ],
+    "mean": 66.0,
+    "sd": 4.899,
+    "spread": 10.0,
+    "latency_s_mean": 1.32,
+    "cost_usd": 0.00812
+  },
+  "diverse_temp0": {
+    "scores": [
+      60.0,
+      60.0,
+      60.0,
+      40.0,
+      40.0
+    ],
+    "mean": 52.0,
+    "sd": 9.798,
+    "spread": 20.0,
+    "latency_s_mean": 1.29,
+    "cost_usd": 0.00806
+  },
+  "diverse_30pct_duplicated": {
+    "scores": [
+      60.0,
+      70.0,
+      70.0
+    ],
+    "mean": 66.67,
+    "sd": 4.714,
+    "spread": 10.0,
+    "latency_s_mean": 1.48,
+    "cost_usd": 0.00481
+  },
+  "agrees_with_us": true,
+  "total_cost_usd": 0.02107,
+  "cost_per_subset_usd": 0.00163,
+  "dup_test_passes": false,
+  "agrees_with_us_temp0": false
+}

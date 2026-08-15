@@ -173,3 +173,39 @@ answer than asserting robustness, and it is the honest one.
 must be able to clone and reproduce with no GPU, no AWS credentials and no network;
 `python run_all.py` does that in 56 s. The per-frame tensor is regenerable from
 `scripts/build_cup_embeddings.py` and too large to ship comfortably.
+
+## 2026-08-15 — Drop the success/failure axis from the submission
+**Decision:** The dashboard and README present diversity only. The success/failure
+classifier, the failure-enrichment result and the diversity-vs-downstream-utility
+correlation are removed from the pitch; `scripts/select_experiment.py` stays in the repo
+as supporting evidence and is labelled as out of scope.
+**Why:** Track 3 ("The Human Reward Model") is explicitly about separating success from
+failure demos. Building the Track 2 pitch on a failure result meant arguing someone else's
+track, and the organizers' slide 4 is unambiguous: "Pick one track… narrow and working,
+not broad and broken." It also made the pitch defensive — leading with what the score gets
+wrong instead of what it is for.
+**Consequence:** external validation of the score had to be re-grounded on something purely
+diversity-shaped. `objects` (12 prop combos) and the recording date (10 sessions) are
+registry metadata the encoder never saw, so subset coverage of them is genuine outside
+evidence. At k=16 the diverse subset covers 6.6/10 sessions vs random's 4.7.
+
+## 2026-08-15 — Measure the LLM judge rather than assert it is worse
+**Decision:** `scripts/llm_judge.py` runs gpt-4o on the identical contact sheets, 5x at
+default temperature, 5x at temperature 0, plus a duplication test on the judge itself.
+**Why:** The track names LLM-as-a-judge as the problem, so the comparison had to be
+measured or dropped — asserting it would have been the weakest thing on the page. Results:
+a 20-point spread across five identical calls at temperature 0, a ranking that flipped
+between two full runs, and a diversity rating that went UP (45 → 67) when 30% of the clips
+were replaced with exact copies of other clips in the same grid.
+**Fairness:** the panel states plainly that the judge is doing a harder task (semantics
+with no reference set, plus an explanation we cannot produce). The claim is narrowed to
+what was measured: as a subset-ranking instrument it is not reproducible and not
+falsifiable.
+
+## 2026-08-15 — Frame the economics as index-vs-query, not as a unit-price win
+**Decision:** The cost argument is "an embedding is a one-off index, a judge is a
+per-query cost", with the measured pair: $0.057 to embed all 912 episodes, then 1,560
+subset scorings at zero marginal cost, versus ~$13 and ~3 hours for the same sweep.
+**Why:** Per-call the judge is cheap ($0.0016), so a unit-price comparison is unconvincing
+and easy to attack. The real difference is structural and shows up the moment curation
+becomes a loop rather than a single question — which is the actual use case.
