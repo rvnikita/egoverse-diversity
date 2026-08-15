@@ -89,16 +89,18 @@ robustness block.
 
 ## 4. "Does it run?" — what that actually requires
 
-- [ ] **A recorded video of a successful run**, made by 16:00, on the laptop AND
+- [x] **The deliverable is a static page** (`results/index.html`) — it cannot fail to render. `python run_all.py` in a visible terminal is the live proof, and it is theatre, not the demo.
       on the phone. Robotics demos fail on the 4th take. The video is not
       cheating — it is what you show while the arm re-homes.
-- [ ] **A path that works with no wifi.** The detector is a network call.
-      `--local-vision` is the fallback — test it for real, on battery, once.
-- [ ] **A path that works with no hardware.** `--robot mock` must still run the
-      full loop. If the arm dies at 16:58, you still have a demo.
+- [x] **No wifi needed.** `results/index.html` is self-contained — inline SVG,
+      inline base64 thumbnails, no CDN, no fonts, no network. Open it from disk.
+- [x] **No GPU and no credentials needed.** `python run_all.py` regenerates every
+      number from the committed 12 MB vector cache. Verified from a clean clone
+      into a **fresh venv** (the earlier test reused a venv that already had
+      pandas/sklearn and hid a missing-dependency bug).
 - [ ] **One command in the README that a judge can copy-paste** and have it run.
       If they can't run it in 60 seconds, "does it run" is their call, not yours.
-- [ ] `./scripts/preflight.sh` green **before leaving the house** and again at 15:00.
+- [x] Fresh-venv clone test green at 15:20. Re-run it after the last push.
 - [ ] Pinned `requirements.txt`, `.env.example` present, **`.env` never committed**.
 - [ ] Repo public (or the judges have access) — check the link in an incognito window.
 
@@ -114,23 +116,24 @@ you know what it fails at.* Have a number for each. Rehearse these:
 
 | They ask | The answer |
 |---|---|
-| Why open-vocab detection (OWLv2) instead of training a detector? | No labelled data and no fine-tune fits in 10 hours. Text-conditioned queries turn a spoken noun straight into a box. Tradeoff: lower precision than a YOLO fine-tuned on a fixed set — we trade precision for an unbounded vocabulary. |
-| Why Modal? | Serverless GPU (L4), weights cached in a Volume so no cold reload, scale-to-zero, nothing to operate. Tradeoff: it is a network dependency — hence the local CPU fallback. |
-| Why is the threshold 0.25? | Chosen against `assets/test-table.jpg`; `scripts/verify_detector_local.py` asserts box centres against known positions. Below it we get furniture, above it we drop dim objects. |
-| Why hand back pixel centres, not world coordinates? | That is the hardware-independence boundary. Pixel→world needs the arm's calibration and depth; it lives in the adapter (`docs/lerobot-cheatsheet.md` has both methods). |
-| Why a rule-based parser, not an LLM? | Deterministic, no latency, no API in the hot path, legible failure mode. An LLM goes in when the grammar stops being closed. |
-| What does it fail at? | Lighting, occlusion, and ambiguous labels — two red blocks means it picks one; that's why it says the confidence out loud. |
-| What's next? | Calibration, closed-loop visual servoing, and teleop-recorded data if a leader arm exists. |
+| **You select with k-means on DINOv2 and score with Vendi on the same DINOv2 space — isn't your subset winning by construction? And is 1.97 vs 1.71 even outside the noise?** | "We measured that. Over 300 random draws Vendi is 1.93 ± 0.14, so on Vendi alone our 1.97 is inside the noise — it is printed on the page. The separation is coverage: our 32 represent 59% of the corpus and the best random draw out of 300 reached 45%. And the score ranks subsets where no selector is involved at all: 32 clips from one operator on one day score 1.53, a day-spanning 32 scores 2.69, zero overlap in 50 paired trials." |
+| Why DINOv2, not CLIP or SigLIP? | Self-supervised, no text tower anywhere. The track asks for diversity "aside from text"; a text-aligned encoder invites exactly the objection the track is written against. |
+| Why the Vendi Score? | Interpretable units — "effectively N distinct episodes out of 32" — no reference distribution required, and exact duplicates provably cannot raise it. That last part makes it falsifiable, so we run the test and publish where it stops holding. |
+| Why 32 uniform frames — isn't uniform lazy? | Measured, not lazy. Four CPU keyframe policies all lost to `np.linspace` (0.0% of the gap to a full-GPU oracle closed) and keyframe pooling lost to mean pooling (+0.319 vs +0.352). Round two is content-aware: contact events, not timestamps. |
+| Why cluster cover and not farthest-point? | FPS scores far higher (3.31 vs 1.97) and is the worse subset — it collects outliers and represents 10% of the corpus against 59%. The highest score is not the best subset; that is on the page. |
+| You gave gpt-4o one frame per episode and DINOv2 32 — rigged. | It is doing a harder job and the page says so. But its failures are on **identical** inputs: same image, temperature 0, five calls, 20-point spread; the rating rose 45→67 when 30% of clips were exact copies. Richer input cannot fix non-determinism on a fixed input. |
+| Why not just stratify by recording day instead of embeddings? | Here you could — day-stratified scores 2.69. But operator and scene are empty for ~81% of the live registry (`docs/egodb-findings.md`); pixels are the only field always populated. On this pool the metadata *does* exist, which is what let us use it as ground truth to validate the pixel score. |
+| Isn't the cost argument thin? gpt-4o is $0.0016 a call. | Yes, and the page says so — 10,000 scorings is $16. Dollars are the weakest form of it. What does not scale is 10,000 × 1.5 s of serial latency, and that the answers are not reproducible. |
+| What does it fail at? | Near-duplicates: jitter a copy past cosine distance 0.0094 — below the 0.0424 separating genuinely distinct episodes — and the score inflates, up to +0.661. We publish the threshold. Also one task, one lab, one scene: constant background kills the "you are measuring rooms" objection by construction, but we have not shown transfer. |
+| What's next? | The two limits we named: the same index across tasks and scenes, and content-aware frame selection. |
 
 **Rules for answering:**
-- Give the **number**, not the adjective. "88 ms p50 over 40 calls", not "fast".
+- Give the **number**, not the adjective.
 - Volunteer what you did **not** do and why. Naming your own limits is what
   reads as defensible.
 - **"We didn't measure that"** is a full, correct, winning answer. Bluffing is
   the only way to actually fail question 2.
 - Never say "it just works."
-
----
 
 ## 6. The one slide
 
@@ -147,18 +150,31 @@ One slide. Design it at 15:30, not 16:40.
 
 ## 7. The 90-second demo script
 
-Rehearsed out loud, twice, before 17:00:
+Start `python run_all.py` in a visible terminal *before* speaking.
 
-1. **The problem** — one sentence.
-2. **The thing moves.** Show it in the first 20 seconds. Talk over the motion.
-3. **Why it is hard** — the one technical claim you can defend under questioning.
-4. **What's next** — one sentence, honest.
+**Open, verbatim:**
+> "We took Track 2, quantitative diversity — and while I talk, this terminal is
+> re-deriving every number on that slide from scratch, on CPU, no network."
 
-If the live run fails: keep talking, cut to the video, say *"that's the failure
-mode I mentioned — lighting"*. A named, expected failure is evidence you
-understand the system. Silence and a re-plug is not.
+1. **The problem.** Today you ask an LLM. Same image, temperature zero, five
+   calls: a 20-point spread. Replace 30% of the clips with exact copies and its
+   diversity rating goes *up* — 45 to 67.
+2. **What we built.** Embed every episode once; diversity becomes a lookup.
+   $0.057 for all 912 episodes, every question after that free and identical.
+3. **The result.** Point at the cloud. Orange is what our 32 reach that random
+   misses — 194 episodes against 59. Coverage 59% vs 44%, and no random draw
+   out of 300 got past 45%.
+4. **The honest part.** On the Vendi score alone we are inside random's noise.
+   It is printed on the page. That is exactly why coverage and the metadata
+   checks are there.
 
----
+**Close, verbatim:**
+> "The index cost six cents, once. Every question after that is free, gives the
+> same answer every time, and we published the exact distance at which someone
+> could fool it — that's the difference between an opinion and a measurement."
+
+If the live run fails: keep talking. The page is static and already open; the
+terminal is theatre, not the deliverable.
 
 ## 8. Hard don'ts
 
