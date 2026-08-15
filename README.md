@@ -54,6 +54,21 @@ collecting outliers and ends up representing almost nothing. Cluster cover beats
 On the shared 3D view, **194 episodes are represented only by the diverse pick** against
 **59 only by random** — 3.3× more exclusive coverage for the same budget of 32.
 
+**Is that gap luck?** We measured the random baseline properly — 300 draws of 32:
+
+| | 300 random draws | cluster cover | |
+|---|---|---|---|
+| Vendi score | 1.93 ± 0.14 (1.67–2.36) | 1.97 | beats only 61% of draws — **inside the noise** |
+| share of corpus represented | 36.8% ± 3.3 (best 45.3%) | **59.2%** | beats **all 300**, z = 6.7 |
+
+We print the number that hurts. On Vendi alone our subset sits inside the spread of plain
+random sampling; the separation that is real is coverage. Same lesson as the farthest-point
+case from the other side: the score alone was never the whole answer.
+
+**And the score ranks what a human already knows**, with no selector involved: 32 clips
+from one operator on one day score **1.53 ± 0.13**; 32 spread across all 10 recording days
+score **2.69 ± 0.08** — broader wins **50/50 paired trials, zero overlap**.
+
 ## The score tracks things it was never shown
 
 The encoder only ever saw pixels. Recording date and the registry's `objects` field were
@@ -70,7 +85,7 @@ score admiring its own geometry:
 
 ```bash
 pip install -r requirements.txt
-python run_all.py            # ~40 s, CPU only, no credentials, no network
+python run_all.py            # ~60 s, CPU only, no credentials, no network
 open results/index.html
 ```
 
@@ -94,7 +109,9 @@ AWS_PROFILE=egoverse python scripts/build_cup_embeddings.py   # 29,184 frames, 2
   keyframe-selection policies all lost to `np.linspace` (`out/cascade_big.log`), and
   keyframe pooling lost to mean pooling on semantic separation (+0.319 vs +0.352). Uniform
   is the measured winner, not the lazy default.
-- **Farthest-point** for selection, so the subset being scored is real data, not a centroid.
+- **Cluster cover** for selection (k-means, then the real episode nearest each centroid),
+  so the subset is real data rather than a synthetic centroid. Farthest-point was rejected
+  on measurement, not taste — see the table above.
 
 ## How it could be fooled
 
@@ -114,7 +131,7 @@ AWS_PROFILE=egoverse python scripts/build_cup_embeddings.py   # 29,184 frames, 2
 
 | Path | What |
 |---|---|
-| `run_all.py` | one command, reproduces everything on CPU in ~40 s |
+| `run_all.py` | one command, reproduces everything on CPU in ~60 s |
 | `results/index.html` | **the deliverable** — slide on screen one, dashboard below |
 | `results/slide.html` | the same slide standalone, for a submission form |
 | `results/episode_vectors.npz` | 912 × 768 pooled DINOv2 vectors + metadata (committed) |

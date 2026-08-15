@@ -231,6 +231,7 @@ def main() -> int:
     R, Dv = A["subsets"]["random"], A["subsets"]["diverse"]
     Sp = A["subsets"]["spread"]
     E, dup, cov = A["economics"], A["duplication"], A["coverage"]
+    RD, NB = A["random_distribution"], A["narrow_vs_broad"]
 
     sheets = {}
     for nm in ("random", "diverse"):
@@ -324,7 +325,7 @@ def main() -> int:
   <p class="sub">Every number on the slide above, with the measurement behind it.</p>
   <p class="meta">{A['n_episodes']} <code>cup_on_saucer</code> episodes &#183;
      DINOv2-base on a Modal L4 &#183; <code>python run_all.py</code> regenerates all of it
-     in ~40 s, on a laptop, with no GPU and no credentials</p>
+     in ~60 s, on a laptop, with no GPU and no credentials</p>
 
   <h2>The deliverable: a score that ranks two subsets</h2>
   <div class="grid2">
@@ -340,6 +341,56 @@ def main() -> int:
      far higher ({Sp['vendi']:.2f}) but collects outliers and represents only
      {Sp['covered_pct']:.0f}% of the corpus against cluster cover's
      {Dv['covered_pct']:.0f}%. The highest score is not the best subset.</p>
+
+  <h2>Is the gap luck?</h2>
+  <div class="card">
+    <div class="scroll"><table>
+      <tr><th></th><th>300 random draws of 32</th><th>our cluster-cover 32</th><th></th></tr>
+      <tr><td>Vendi score</td>
+          <td>{RD['vendi_mean']:.2f} &#177; {RD['vendi_sd']:.2f}
+              (range {RD['vendi_min']:.2f}&#8211;{RD['vendi_max']:.2f})</td>
+          <td>{Dv['vendi']:.2f}</td>
+          <td class="lose">beats only {RD['diverse_beats_pct_on_vendi']:.0f}% of draws
+              &#8212; inside the noise</td></tr>
+      <tr><td>share of corpus represented</td>
+          <td>{RD['cov_mean']:.1f}% &#177; {RD['cov_sd']:.1f}
+              (best of 300: {RD['cov_max']:.1f}%)</td>
+          <td>{Dv['covered_pct']:.1f}%</td>
+          <td class="win">beats <strong>all 300</strong>, z = {RD['diverse_cov_z']:.1f}</td></tr>
+    </table></div>
+    <p class="note"><strong>We are printing the number that hurts.</strong> On the Vendi
+      score alone, our subset is inside the spread of plain random sampling — a single
+      lucky or unlucky draw could tell either story, and the random draw shown above
+      happens to sit at the {RD['featured_random_vendi_pctile']:.0f}th percentile. The
+      separation that is real is <strong>coverage</strong>: no random draw out of 300 came
+      within {Dv['covered_pct'] - RD['cov_max']:.0f} points of it.</p>
+    <p class="note">This is the same lesson as the farthest-point case, from the other
+      side: <em>the score alone was never the whole answer</em>. That is exactly why
+      coverage and the external metadata checks are on this page, and why we did not
+      lead with a ratio of two Vendi numbers.</p>
+  </div>
+
+  <h2>Does the score rank what a human already knows?</h2>
+  <div class="card">
+    <div class="scroll"><table>
+      <tr><th>subset of 32</th><th>Vendi score</th><th></th></tr>
+      <tr><td>one operator, one recording day</td>
+          <td>{NB['narrow_mean']:.2f} &#177; {NB['narrow_sd']:.2f}
+              (highest {NB['narrow_max']:.2f})</td>
+          <td style="color:var(--ink3)">a human would call this narrow</td></tr>
+      <tr><td>spread across all 10 recording days</td>
+          <td>{NB['broad_mean']:.2f} &#177; {NB['broad_sd']:.2f}
+              (lowest {NB['broad_min']:.2f})</td>
+          <td class="win">broader in {NB['broad_wins']}/{NB['trials']} paired trials,
+              <strong>zero overlap</strong></td></tr>
+    </table></div>
+    <p class="note">No selector is involved here — this tests the <strong>score</strong>,
+      not our choice of how to pick. Two subsets anyone would already agree differ, and the
+      number agrees, every single trial, with the highest narrow score
+      ({NB['narrow_max']:.2f}) still below the lowest broad one ({NB['broad_min']:.2f}).
+      That is the track's ask — "a score that ranks two subsets" — with the ranking
+      checkable against something other than our own opinion.</p>
+  </div>
 
   <h2>The score tracks things it was never shown</h2>
   <div class="grid2">

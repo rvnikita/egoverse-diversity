@@ -282,6 +282,76 @@ def main() -> int:
               f"combos {s['combos']}/{out['n_combos']}")
     out["subsets"] = subsets
 
+    # ------------------------------------------------- 4b. is the gap luck?
+    #
+    # A single random draw is one sample from a distribution. Comparing our subset against
+    # ONE random draw is worth nothing unless the spread of that distribution is known, so
+    # measure it: 300 draws, Vendi and coverage. Reported whichever way it falls.
+    print("\n== is the gap luck? 300 random draws ==")
+    rv, rc = [], []
+    for s_ in range(300):
+        i = np.random.default_rng(s_).choice(n, K_DEMO, replace=False)
+        rv.append(vendi_score(V[i]))
+        rc.append(float((Dist[:, i].min(axis=1) <= tau).mean()) * 100)
+    rv, rc = np.array(rv), np.array(rc)
+    dv = subsets["diverse"]
+    out["random_distribution"] = {
+        "draws": 300, "k": K_DEMO,
+        "vendi_mean": round(float(rv.mean()), 3), "vendi_sd": round(float(rv.std()), 3),
+        "vendi_min": round(float(rv.min()), 3), "vendi_max": round(float(rv.max()), 3),
+        "cov_mean": round(float(rc.mean()), 1), "cov_sd": round(float(rc.std()), 1),
+        "cov_max": round(float(rc.max()), 1),
+        "diverse_beats_pct_on_vendi": round(float((rv < dv["vendi"]).mean()) * 100, 1),
+        "diverse_cov_z": round(float((dv["covered_pct"] - rc.mean()) / rc.std()), 1),
+        "featured_random_vendi_pctile": round(
+            float((rv < subsets["random"]["vendi"]).mean()) * 100, 1),
+    }
+    rd = out["random_distribution"]
+    print(f"  Vendi    random {rd['vendi_mean']} +- {rd['vendi_sd']} "
+          f"(min {rd['vendi_min']}, max {rd['vendi_max']})  |  ours {dv['vendi']} "
+          f"beats {rd['diverse_beats_pct_on_vendi']}% of draws")
+    print(f"  coverage random {rd['cov_mean']}% +- {rd['cov_sd']} (max {rd['cov_max']}%)  "
+          f"|  ours {dv['covered_pct']}%  z = {rd['diverse_cov_z']}")
+
+    # ------------------------------------------------- 4c. does the score rank subsets a
+    # human already believes differ? One operator on one day vs a day-spanning subset.
+    # No selector involved, so it tests the SCORE rather than our choice of selector.
+    import collections
+
+    day_of = np.array([h[:10] for h in ep_hash])
+    days = sorted(set(day_of.tolist()))
+    cells = [c for c, v in collections.Counter(zip(op.tolist(), day_of.tolist())).items()
+             if v >= K_DEMO]
+    nar, bro = [], []
+    for s_ in range(50):
+        rng = np.random.default_rng(s_)
+        o, dy = cells[rng.integers(len(cells))]
+        pool_nd = np.where((op == o) & (day_of == dy))[0]
+        nar.append(vendi_score(V[rng.choice(pool_nd, K_DEMO, replace=False)]))
+        per, pick = max(1, K_DEMO // len(days)), []
+        for dd in days:
+            ii = np.where(day_of == dd)[0]
+            pick += list(rng.choice(ii, min(per, len(ii)), replace=False))
+        pick = np.array(pick)[:K_DEMO]
+        bro.append(vendi_score(V[pick]))
+    nar, bro = np.array(nar), np.array(bro)
+    out["narrow_vs_broad"] = {
+        "trials": 50, "k": K_DEMO, "cells_available": len(cells),
+        "narrow_mean": round(float(nar.mean()), 2), "narrow_sd": round(float(nar.std()), 2),
+        "narrow_max": round(float(nar.max()), 3),
+        "broad_mean": round(float(bro.mean()), 2), "broad_sd": round(float(bro.std()), 2),
+        "broad_min": round(float(bro.min()), 3),
+        "broad_wins": int((bro > nar).sum()),
+        "overlap": bool(nar.max() >= bro.min()),
+    }
+    nb = out["narrow_vs_broad"]
+    print(f"\n== does the score rank what a human already knows? ==")
+    print(f"  one operator, one day   {nb['narrow_mean']} +- {nb['narrow_sd']} "
+          f"(max {nb['narrow_max']})")
+    print(f"  spread over {len(days)} days   {nb['broad_mean']} +- {nb['broad_sd']} "
+          f"(min {nb['broad_min']})")
+    print(f"  broad wins {nb['broad_wins']}/50 paired trials, overlap: {nb['overlap']}")
+
     # ------------------------------------------------- 5. projection + contact sheets
     from sklearn.decomposition import PCA
 

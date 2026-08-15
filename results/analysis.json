@@ -3149,6 +3149,33 @@
       "combos": 11
     }
   },
+  "random_distribution": {
+    "draws": 300,
+    "k": 32,
+    "vendi_mean": 1.933,
+    "vendi_sd": 0.14,
+    "vendi_min": 1.667,
+    "vendi_max": 2.357,
+    "cov_mean": 36.9,
+    "cov_sd": 3.3,
+    "cov_max": 45.4,
+    "diverse_beats_pct_on_vendi": 61.3,
+    "diverse_cov_z": 6.7,
+    "featured_random_vendi_pctile": 1.7
+  },
+  "narrow_vs_broad": {
+    "trials": 50,
+    "k": 32,
+    "cells_available": 7,
+    "narrow_mean": 1.53,
+    "narrow_sd": 0.13,
+    "narrow_max": 1.855,
+    "broad_mean": 2.69,
+    "broad_sd": 0.08,
+    "broad_min": 2.564,
+    "broad_wins": 50,
+    "overlap": false
+  },
   "projection": {
     "x": [
       0.0020000000949949026,

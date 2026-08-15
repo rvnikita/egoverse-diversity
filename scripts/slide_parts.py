@@ -144,7 +144,7 @@ def payload(A: dict) -> str:
 
 def body(A: dict, J: dict) -> str:
     R, Dv, Sp = A["subsets"]["random"], A["subsets"]["diverse"], A["subsets"]["spread"]
-    E = A["economics"]
+    E, RD, NB = A["economics"], A["random_distribution"], A["narrow_vs_broad"]
     klass = [(3 if d and not r else 2 if r and not d else 1 if r and d else 0)
              for r, d in zip(R["covered"], Dv["covered"])]
     excl_r = sum(1 for k in klass if k == 2)
@@ -155,10 +155,10 @@ def body(A: dict, J: dict) -> str:
         return f"""
         <div class="s-row {cls}">
           <div class="s-rh"><div class="s-rn" style="color:{colour}">{name}</div>
-            <div><div class="s-rv" style="color:{colour}">{s['vendi']:.2f}</div>
-              <div class="s-sub">Vendi score</div></div></div>
+            <div><div class="s-rv" style="color:{colour}">{s['covered_pct']:.0f}%</div>
+              <div class="s-sub">of the corpus represented</div></div></div>
           <div class="s-bar"><i style="width:{s['covered_pct']:.0f}%;background:{colour}"></i></div>
-          <div class="s-bl">represents <b>{s['covered_pct']:.0f}%</b> of the corpus</div>
+          <div class="s-bl">Vendi score <b>{s['vendi']:.2f}</b></div>
         </div>"""
 
     return f"""<div class="slide">
@@ -207,8 +207,10 @@ def body(A: dict, J: dict) -> str:
           <span class="s-dot" style="background:#7d7c74"></span>both</div>
       </div>
       <canvas id="cloud"></canvas>
-      <div class="s-vf">the diverse pick reaches <b>{excl_d} episodes</b> random misses
-        &#8212; random reaches <b>{excl_r}</b> it misses</div>
+      <div class="s-vf">reaches <b>{excl_d} episodes</b> random misses (random reaches
+        <b>{excl_r}</b> it misses) &#8212; and beats
+        <b>all {RD['draws']} random draws</b> on coverage, best of which hit
+        {RD['cov_max']:.0f}%</div>
     </div>
     <div class="s-panel">
       {row('Random 32', R, '#3987e5', '')}
@@ -217,13 +219,14 @@ def body(A: dict, J: dict) -> str:
   </div>
 
   <div class="s-foot">
-    <div class="s-unlocks">Same index also gives you
-      <b>wider session coverage</b>, <b>edge cases on purpose</b>, and
-      <b>failures {A['label_free_ranking']['knn20_dist']['top32_enrichment']}&#215; earlier</b>
-      &#8212; they look unlike successes, so they rank high without labels.</div>
+    <div class="s-unlocks">The score ranks what a human already knows:
+      32 clips from <b>one operator on one day</b> score
+      <b>{NB['narrow_mean']:.1f}</b>; 32 spread across
+      {NB['trials'] and 10} days score <b>{NB['broad_mean']:.1f}</b> &#8212;
+      no overlap in {NB['trials']} paired trials.</div>
     <div class="s-qr">{qr_svg()}
       <div><div class="s-repo">github.com/rvnikita/<br>egoverse-diversity</div>
-        <div class="s-repos"><b style="color:#c3c2b7">python run_all.py</b> &#183; 40 s
+        <div class="s-repos"><b style="color:#c3c2b7">python run_all.py</b> &#183; ~60 s
           &#183; no GPU, no keys</div></div>
     </div>
   </div>

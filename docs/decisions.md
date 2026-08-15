@@ -253,3 +253,41 @@ it is the most obvious weakness of the current pipeline. Stating it first — to
 the fact that our four cheap policies already lost to np.linspace and why that means the
 next attempt must be content-aware rather than cheaper — turns the negative result into
 the reason the roadmap is shaped the way it is, instead of leaving a judge to find it.
+
+## 2026-08-15 — Measure the random baseline's spread, and stop leading with Vendi
+**Decision:** The slide now leads with coverage (44% vs 59%) and carries Vendi as a
+secondary line. A new dashboard section prints the full random-draw distribution,
+including the part that hurts.
+**Why:** Comparing against ONE random draw is worthless without the spread of that
+distribution, and we had never measured it. Over 300 draws of 32:
+
+| | random (300 draws) | cluster cover |
+|---|---|---|
+| Vendi | 1.93 ± 0.14 (1.67–2.36) | 1.97 — beats only 61% of draws |
+| coverage | 36.8% ± 3.3 (best 45.3%) | 59.2% — beats all 300, z = 6.7 |
+
+So the Vendi headline was **seed luck**: the featured random draw sits at the 1.7th
+percentile, and ~39% of random draws outscore our subset on Vendi. Anyone flipping the
+demo seed would have inverted the slide. Coverage is the opposite — no random draw came
+within 14 points — so the page had been *understating* the real result while overstating
+a fragile one.
+**Consequence:** printed both, framed the Vendi overlap as the same lesson as the
+farthest-point case seen from the other side: the score alone was never the whole answer.
+
+## 2026-08-15 — Add narrow-vs-broad: rank two subsets a human already believes differ
+**Decision:** New measurement — 32 clips from one operator on one recording day vs 32
+spread across all ten days. Narrow 1.53 ± 0.13, broad 2.69 ± 0.08, broad wins 50/50 paired
+trials with zero overlap (highest narrow 1.86 < lowest broad 2.56).
+**Why:** Every other comparison on the page ranks random against *our own selector*, which
+a judge can dismiss as grading our own homework. This one involves no selector at all — it
+tests the score against a distinction anyone would agree on before seeing a number, which
+is the track's literal ask ("a score that ranks two subsets") with an external referee.
+
+## 2026-08-15 — requirements.txt was missing pandas and scikit-learn
+**Decision:** Added both (plus matplotlib) and verified the judge's exact path in a
+genuinely fresh venv: clone from GitHub, `pip install -r requirements.txt`,
+`python run_all.py` → 67 s, green.
+**Why:** `scripts/analysis.py` imports pandas and sklearn and `run_all.py` runs it first,
+so a judge following the README would have hit ModuleNotFoundError on line one. Our earlier
+"clean clone" test reused an existing virtualenv that already had them, which is precisely
+how the gap survived. Judging question 1 is "does it run" — on their machine, not ours.
