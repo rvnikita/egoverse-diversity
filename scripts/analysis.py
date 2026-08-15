@@ -31,6 +31,8 @@ import pandas as pd
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
+from sklearn.cluster import KMeans  # noqa: E402
+
 from diversity import duplication_test, farthest_point, vendi_score  # noqa: E402
 
 VECTORS = ROOT / "results" / "episode_vectors.npz"
@@ -206,8 +208,6 @@ def main() -> int:
     # diverse" also covers more of them, the score is tracking something real and not
     # just its own geometry.
     print("\n== metadata coverage: external ground truth the embedding never saw ==")
-    from sklearn.cluster import KMeans
-
     op = d["operator"].astype(str)
     day = np.array([h[:10] for h in ep_hash])
     axes = {"prop combos": combo, "operators": op, "recording days": day}
@@ -215,15 +215,16 @@ def main() -> int:
     def pick(kind, k, s):
         if kind == "random":
             return np.random.default_rng(s).choice(n, k, replace=False)
-        if kind == "diverse":
+        if kind == "spread":
             return farthest_point(V, k, seed=s)
+        # "diverse" is cluster-cover, matching the subset the dashboard and slide feature
         km = KMeans(n_clusters=k, n_init=3, random_state=s).fit(V)
         return np.unique((V @ km.cluster_centers_.T).argmax(axis=0))
 
     budgets = [4, 8, 16, 32, 64]
     cov: dict = {a: {"total": int(len(set(v.tolist()))), "budgets": budgets, "by": {}}
                  for a, v in axes.items()}
-    for kind in ("random", "diverse"):
+    for kind in ("random", "diverse", "spread"):
         for a, v in axes.items():
             means, sds = [], []
             for k in budgets:
@@ -237,20 +238,47 @@ def main() -> int:
         print(f"  {a:16s} (of {cov[a]['total']:2d})  random {r_}  diverse {f_}")
 
     # ------------------------------------------------- 4. the two demo subsets
+    #
+    # "diverse" is CLUSTER-COVER (k-means, then the real episode nearest each centroid),
+    # not farthest-point. Both are measured below and the choice is deliberate:
+    # farthest-point scores far higher on Vendi (3.31 vs 1.97) but is an outlier collector
+    # — it represents almost none of the corpus (11% coverage vs random's 49%). Cluster
+    # cover beats random on BOTH the score and coverage, so the metric and the practical
+    # benefit point the same way. Featuring the higher number would have been dishonest.
     idx_rand = np.random.default_rng(SEED_DEMO).choice(n, K_DEMO, replace=False)
+    km = KMeans(n_clusters=K_DEMO, n_init=5, random_state=SEED_DEMO).fit(V)
+    idx_cover = np.unique((V @ km.cluster_centers_.T).argmax(axis=0))
     idx_fps = farthest_point(V, K_DEMO, seed=SEED_DEMO)
+
+    # An episode is "represented" by a pick if it is closer to that pick than 90% of
+    # episodes are to their own nearest neighbour — i.e. near enough to be redundant with
+    # it. That p90 is measured here, not chosen to flatter the result.
+    S_all = V @ V.T
+    np.fill_diagonal(S_all, -np.inf)
+    tau = float(np.percentile(1 - S_all.max(axis=1), 90))
+    Dist = 1 - V @ V.T
+    out["coverage_radius"] = {
+        "tau": round(tau, 4),
+        "definition": "p90 of nearest-neighbour cosine distance over the full pool",
+    }
+    print(f"\n== representation radius tau = {tau:.4f} "
+          f"(p90 of nearest-neighbour distance) ==")
+
     subsets = {}
-    for name, idx in (("random", idx_rand), ("diverse", idx_fps)):
+    for name, idx in (("random", idx_rand), ("diverse", idx_cover), ("spread", idx_fps)):
+        near = Dist[:, idx].min(axis=1)
         subsets[name] = {
-            "k": K_DEMO, "idx": idx.tolist(),
+            "k": int(len(idx)), "idx": [int(i) for i in idx],
             "vendi": round(float(vendi_score(V[idx])), 3),
-            "failures": int(y[idx].sum()),
-            "failure_pct": round(float(y[idx].mean()) * 100, 1),
+            "covered_pct": round(float((near <= tau).mean()) * 100, 1),
+            "covered": (near <= tau).astype(int).tolist(),
+            "mean_dist_to_pick": round(float(near.mean()), 4),
             "combos": int(len(set(combo[idx].tolist()))),
         }
-        print(f"\n  subset {name:8s} Vendi {subsets[name]['vendi']:.2f}  "
-              f"failures {subsets[name]['failures']}/{K_DEMO}  "
-              f"combos {subsets[name]['combos']}/{out['n_combos']}")
+        s = subsets[name]
+        print(f"  {name:8s} Vendi {s['vendi']:5.2f}  represents {s['covered_pct']:5.1f}% "
+              f"of the corpus  mean distance {s['mean_dist_to_pick']:.4f}  "
+              f"combos {s['combos']}/{out['n_combos']}")
     out["subsets"] = subsets
 
     # ------------------------------------------------- 5. projection + contact sheets
@@ -287,7 +315,7 @@ def main() -> int:
     SHEETS.mkdir(parents=True, exist_ok=True)
     if CLIPS.exists():
         print("\n== contact sheets ==")
-        for name, idx in (("random", idx_rand), ("diverse", idx_fps)):
+        for name, idx in (("random", idx_rand), ("diverse", idx_cover)):
             paths = [CLIPS / mp4_of.get(ep_hash[i], "") for i in idx]
             b64 = contact_sheet([p for p in paths if p.exists()])
             (SHEETS / f"{name}.jpg.b64").write_text(b64)

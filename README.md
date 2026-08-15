@@ -38,13 +38,20 @@ Curation is never one question. It is thousands of subset comparisons in a loop.
 ## The deliverable: a score that ranks two subsets
 
 ```
-random 32     Vendi 1.71     effectively 1.7 distinct episodes out of 32
-diverse 32    Vendi 3.31     effectively 3.3 distinct episodes out of 32     1.9x
+                Vendi     represents      avg distance to
+                score     the corpus      nearest pick
+random 32        1.71        44%            0.053
+diverse 32       1.97        59%            0.037     <- cluster cover
+farthest-point   3.31        10%            0.060     <- highest score, worst subset
 ```
 
-The dashboard shows both subsets as contact sheets — the random grid visibly repeats
-near-identical clips — plus an interactive 3D view of all 912 episodes in embedding
-space, where random sits in the mode and diverse reaches the shell.
+Selection is **cluster cover** (k-means, then the real episode nearest each centroid),
+not farthest-point. That choice is deliberate and measured: FPS maximises the score by
+collecting outliers and ends up representing almost nothing. Cluster cover beats random on
+**both** the score and coverage, so the metric and the practical benefit agree.
+
+On the shared 3D view, **194 episodes are represented only by the diverse pick** against
+**59 only by random** — 3.3× more exclusive coverage for the same budget of 32.
 
 ## The score tracks things it was never shown
 

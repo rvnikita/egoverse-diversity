@@ -229,6 +229,7 @@ def main() -> int:
 
     K = A["subsets"]["random"]["k"]
     R, Dv = A["subsets"]["random"], A["subsets"]["diverse"]
+    Sp = A["subsets"]["spread"]
     E, dup, cov = A["economics"], A["duplication"], A["coverage"]
 
     sheets = {}
@@ -338,8 +339,12 @@ def main() -> int:
   <p class="note">Same budget, same pool, same encoder — the diverse subset scores
      <strong>{Dv['vendi']/R['vendi']:.1f}&#215; higher</strong>. The thumbnails are the
      score made visible: the random grid repeats near-identical clips, the diverse grid
-     does not. Selection is farthest-point in embedding space; the score is the Vendi
-     Score, read as "effectively N distinct episodes".</p>
+     does not. Selection is <strong>cluster cover</strong> (k-means, then the real episode
+     nearest each centroid); the score is the Vendi Score, read as "effectively N distinct
+     episodes". Cluster cover is chosen over pure farthest-point deliberately: FPS scores
+     far higher ({Sp['vendi']:.2f}) but collects outliers and represents only
+     {Sp['covered_pct']:.0f}% of the corpus against cluster cover's
+     {Dv['covered_pct']:.0f}%. The highest score is not the best subset.</p>
 
   <h2>The whole corpus, and where each subset lands</h2>
   <div class="card">
@@ -352,7 +357,7 @@ def main() -> int:
     <p class="note">All {A['n_episodes']} episodes in the first three principal components
       of the embedding space. Drag to rotate, hover a point to identify it.
       <span class="dot" style="background:var(--s1)"></span>random sits in the mode;
-      <span class="dot" style="background:var(--s2)"></span>diverse reaches the shell.
+      <span class="dot" style="background:var(--s2)"></span>diverse spreads across it.
       This is the "represent diversity" half of the brief — the score is the number,
       this is the shape it is measuring.</p>
   </div>

@@ -209,3 +209,26 @@ subset scorings at zero marginal cost, versus ~$13 and ~3 hours for the same swe
 **Why:** Per-call the judge is cheap ($0.0016), so a unit-price comparison is unconvincing
 and easy to attack. The real difference is structural and shows up the moment curation
 becomes a loop rather than a single question — which is the actual use case.
+
+## 2026-08-15 — Feature cluster cover, not farthest-point, as "the diverse subset"
+**Decision:** The dashboard and slide compare random against a CLUSTER-COVER subset
+(k-means over the pool, then the real episode nearest each centroid). Farthest-point is
+still computed and reported, as the cautionary case.
+**Why:** Caught while building a coverage visual. Measured at k=32, radius tau=0.0381
+(the p90 of nearest-neighbour distance over the pool, so "close enough to be redundant"):
+
+| selector | Vendi | represents | mean distance to nearest pick |
+|---|---|---|---|
+| random | 1.71 | 44.4% | 0.0533 |
+| farthest-point | **3.31** | **9.9%** | 0.0602 |
+| cluster cover | 1.97 | **59.2%** | **0.0366** |
+
+Farthest-point wins the score by a mile and is the worst subset in the set — it maximises
+spread by collecting outliers, so it represents almost none of the corpus. Featuring it
+would have meant showing a visual that contradicted the pitch, or quietly not showing
+coverage at all. Cluster cover beats random on both axes, so the score and the practical
+benefit point the same way.
+**Consequence:** the headline multiple drops from 1.9x to 1.15x on Vendi, which is the
+honest number, and the coverage story (+33% relative, 3.3x exclusive coverage) carries the
+visual. The metadata-coverage curves were recomputed against cluster cover so every figure
+on the page describes the same subset.
