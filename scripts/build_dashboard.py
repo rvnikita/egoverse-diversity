@@ -130,31 +130,94 @@ def bars_coverage(cov, axis, w=560, rowh=30):
     return "".join(p)
 
 
-def sweep_chart(sweep, real_nn, w=520, h=250):
-    """Diverging bars around zero: does injecting near-duplicates move the score?"""
-    n = len(sweep)
-    bw = (w - 70) / n - 12
-    dmax = max(abs(r["delta"]) for r in sweep) * 1.25 or 1
-    zero = h - 66
-    p = [f'<svg viewBox="0 0 {w} {h}" class="chart" role="img" '
-         f'aria-label="Change in the score when near-duplicates are injected">']
-    p.append(f'<line x1="52" y1="{zero}" x2="{w-8}" y2="{zero}" stroke="var(--ink3)"/>')
-    for i, r in enumerate(sweep):
-        x = 62 + i * ((w - 70) / n)
-        hgt = abs(r["delta"]) / dmax * (zero - 26)
-        up = r["delta"] > 0
-        yy = zero - hgt if up else zero
-        p.append(f'<rect x="{x:.1f}" y="{yy:.1f}" width="{bw:.1f}" height="{max(hgt,1.5):.1f}" '
-                 f'rx="3" fill="{"var(--neg)" if up else "var(--s3)"}"/>')
-        p.append(f'<text x="{x+bw/2:.1f}" y="{(yy-6) if up else (yy+hgt+15):.1f}" '
-                 f'fill="var(--ink)" font-size="11" text-anchor="middle" '
-                 f'font-weight="550">{r["delta"]:+.3f}</text>')
-        p.append(f'<text x="{x+bw/2:.1f}" y="{h-30}" fill="var(--ink3)" font-size="10" '
-                 f'text-anchor="middle">{r["cos_dist"]:.4f}</text>')
-    p.append(f'<text x="{w/2:.0f}" y="{h-8}" fill="var(--ink3)" font-size="11" '
-             f'text-anchor="middle">cosine distance injected '
-             f'(real distinct episodes differ by {real_nn:.4f})</text>')
-    p.append('<text x="6" y="20" fill="var(--ink3)" font-size="11">&#916; score</text>')
+def cost_curve(index_usd, per_call_usd, latency_s, w=560, h=300):
+    """Cumulative cost against number of subset scorings. One measure, two series.
+
+    Log x, because the honest story spans 1 to 10,000 questions: on dollars alone the
+    judge is cheap until you ask it a lot, and pretending otherwise invites the obvious
+    rebuttal. The break-even point is drawn where it actually falls.
+    """
+    import math
+
+    pad_l, pad_b, pad_t = 52, 40, 14
+    xs = [1, 10, 100, 1000, 10000]
+    ymax = 10000 * per_call_usd
+    lx = lambda v: pad_l + math.log10(v) / 4 * (w - pad_l - 62)          # noqa: E731
+    ly = lambda v: h - pad_b - (v / ymax) ** 0.5 * (h - pad_b - pad_t)   # sqrt: both ends readable  # noqa: E731
+
+    p = [f'<svg viewBox="0 0 {w} {h}" class="chart" role="img" aria-label="Cumulative '
+         f'cost against number of subset scorings">']
+    for gv in (0.01, 0.1, 1, 4, 16):
+        p.append(f'<line x1="{pad_l}" y1="{ly(gv):.1f}" x2="{w-62}" y2="{ly(gv):.1f}" '
+                 f'stroke="var(--grid)"/>')
+        p.append(f'<text x="{pad_l-7}" y="{ly(gv)+4:.1f}" fill="var(--ink3)" font-size="10.5" '
+                 f'text-anchor="end">${gv:g}</text>')
+    for xv in xs:
+        p.append(f'<text x="{lx(xv):.1f}" y="{h-22}" fill="var(--ink3)" font-size="10.5" '
+                 f'text-anchor="middle">{xv:,}</text>')
+    # LLM judge: linear in the number of questions
+    pts = " ".join(f"{lx(x):.1f},{ly(x*per_call_usd):.1f}" for x in
+                   (1, 3, 10, 30, 100, 300, 1000, 3000, 10000))
+    p.append(f'<polyline points="{pts}" fill="none" stroke="var(--s1)" stroke-width="2.5"/>')
+    # ours: flat, the index is paid once
+    p.append(f'<line x1="{lx(1):.1f}" y1="{ly(index_usd):.1f}" x2="{lx(10000):.1f}" '
+             f'y2="{ly(index_usd):.1f}" stroke="var(--s2)" stroke-width="2.5"/>')
+    be = index_usd / per_call_usd
+    p.append(f'<line x1="{lx(be):.1f}" y1="{pad_t}" x2="{lx(be):.1f}" y2="{h-pad_b}" '
+             f'stroke="var(--ink3)" stroke-dasharray="4 4"/>')
+    p.append(f'<circle cx="{lx(be):.1f}" cy="{ly(index_usd):.1f}" r="4.5" fill="var(--ink)"/>')
+    p.append(f'<text x="{lx(be)+8:.1f}" y="{pad_t+13}" fill="var(--ink)" font-size="11.5" '
+             f'font-weight="650">break-even: {be:.0f} questions</text>')
+    p.append(f'<text x="{lx(10000)+6:.1f}" y="{ly(10000*per_call_usd)+4:.1f}" '
+             f'fill="var(--s1)" font-size="11.5" font-weight="650">LLM judge</text>')
+    p.append(f'<text x="{lx(10000)+6:.1f}" y="{ly(index_usd)+4:.1f}" fill="var(--s2)" '
+             f'font-size="11.5" font-weight="650">ours</text>')
+    p.append(f'<text x="{w/2:.0f}" y="{h-5}" fill="var(--ink3)" font-size="11" '
+             f'text-anchor="middle">subset scorings &#8594;</text>')
+    p.append('</svg>')
+    return "".join(p)
+
+
+def sweep_chart(sweep, real_nn, w=560, h=250):
+    """Where the score stops being duplication-proof, against how far apart real data is.
+
+    Deliberately NOT a bar per measurement: the only thing a reader needs is the crossing
+    point, and where it sits relative to real episodes.
+    """
+    pad_l, pad_b, pad_t = 46, 46, 18
+    xs = [r["cos_dist"] for r in sweep]
+    ys = [r["delta"] for r in sweep]
+    xmax = max(xs) * 1.05
+    ylo, yhi = min(ys) * 1.3, max(ys) * 1.15
+    sx = lambda v: pad_l + v / xmax * (w - pad_l - 26)                     # noqa: E731
+    sy = lambda v: h - pad_b - (v - ylo) / (yhi - ylo) * (h - pad_b - pad_t)  # noqa: E731
+
+    p = [f'<svg viewBox="0 0 {w} {h}" class="chart" role="img" aria-label="Change in the '
+         f'score as injected near-duplicate distance grows">']
+    p.append(f'<line x1="{pad_l}" y1="{sy(0):.1f}" x2="{w-26}" y2="{sy(0):.1f}" '
+             f'stroke="var(--ink3)"/>')
+    p.append(f'<text x="{pad_l-6}" y="{sy(0)+4:.1f}" fill="var(--ink3)" font-size="10.5" '
+             f'text-anchor="end">0</text>')
+    # the band where duplicates still cannot inflate the score
+    first_bad = next((r["cos_dist"] for r in sweep if r["delta"] > 0), xmax)
+    p.append(f'<rect x="{pad_l}" y="{pad_t}" width="{sx(first_bad)-pad_l:.1f}" '
+             f'height="{h-pad_b-pad_t:.1f}" fill="var(--s3)" opacity=".07"/>')
+    p.append(f'<text x="{(pad_l+sx(first_bad))/2:.0f}" y="{pad_t+13}" fill="var(--s3)" '
+             f'font-size="11" text-anchor="middle" font-weight="650">duplicate-proof</text>')
+    pts = " ".join(f"{sx(x):.1f},{sy(y):.1f}" for x, y in zip(xs, ys))
+    p.append(f'<polyline points="{pts}" fill="none" stroke="var(--neg)" stroke-width="2.5"/>')
+    for x, y in zip(xs, ys):
+        p.append(f'<circle cx="{sx(x):.1f}" cy="{sy(y):.1f}" r="3.4" fill="var(--neg)"/>')
+    # where genuinely distinct real episodes sit
+    p.append(f'<line x1="{sx(real_nn):.1f}" y1="{pad_t}" x2="{sx(real_nn):.1f}" '
+             f'y2="{h-pad_b}" stroke="var(--ink)" stroke-dasharray="4 4"/>')
+    p.append(f'<text x="{sx(real_nn)+7:.1f}" y="{pad_t+12}" fill="var(--ink)" font-size="11" '
+             f'font-weight="650">real distinct episodes ({real_nn:.3f})</text>')
+    p.append(f'<text x="{sx(first_bad):.1f}" y="{h-26}" fill="var(--neg)" font-size="10.5" '
+             f'text-anchor="middle">{first_bad:.4f}</text>')
+    p.append(f'<text x="{w/2:.0f}" y="{h-6}" fill="var(--ink3)" font-size="11" '
+             f'text-anchor="middle">cosine distance of the injected copies &#8594;</text>')
+    p.append(f'<text x="8" y="{pad_t}" fill="var(--ink3)" font-size="11">&#916; score</text>')
     p.append('</svg>')
     return "".join(p)
 
@@ -221,24 +284,22 @@ def main() -> int:
   </div>
 
   <h2>Why this compounds</h2>
-  <div class="grid3">
-    <div class="card"><div class="herol">index, built once</div>
-      <div class="hero sm">${E['index_cost_usd']:.3f}</div>
-      <p class="note">{E['index_gpu_seconds']:.0f}s on one L4 for all
-        {A['n_episodes']} episodes, {A['ms_per_frame']:.1f} ms/frame.</p></div>
-    <div class="card"><div class="herol">subsets scored since</div>
-      <div class="hero sm">{E['subset_scorings_performed']:,}</div>
-      <p class="note">every one of them free — numpy over cached vectors, the whole
-        sweep replays in under a minute on a laptop.</p></div>
-    <div class="card"><div class="herol">same sweep, LLM judge</div>
-      <div class="hero sm">${sweep_calls * per_call:,.0f}</div>
-      <p class="note">{sweep_calls:,} calls at {J['random']['latency_s_mean']:.1f}s
-        &#8594; ~{sweep_calls * J['random']['latency_s_mean'] / 3600:.0f} hours,
-        and still not reproducible.</p></div>
-  </div>
-  <p class="note">This is the structural difference, not a tuning win: an embedding is a
-    <strong>one-off index</strong>, a judge is a <strong>per-query cost</strong>. Curation is
-    not one question — it is thousands of subset comparisons in a loop.</p>"""
+  <div class="card">
+    {cost_curve(E['index_cost_usd'], per_call, J['random']['latency_s_mean'])}
+    <p class="note">The index costs <strong>${E['index_cost_usd']:.3f}</strong> once and
+      answers every subsequent question for nothing. The judge charges
+      ${per_call:.4f} each time, so it is cheaper right up until the
+      <strong>{E['index_cost_usd']/per_call:.0f}th question</strong> — and we are honest
+      that in pure dollars this stays small: 10,000 scorings is only
+      ${10000*per_call:,.0f} of API spend.</p>
+    <p class="note"><strong>Dollars are the weakest version of this argument.</strong> The
+      one that matters is that those 10,000 questions are
+      {10000*J['random']['latency_s_mean']/3600:.0f} hours of serial API latency against
+      milliseconds of numpy — and that the LLM's answers
+      <em>are not the same answers twice</em>. An index turns diversity into a property you
+      look up. A judge keeps it a question you re-buy, at a slightly different price and a
+      slightly different answer, every time you ask.</p>
+  </div>"""
 
     SLIDE_CSS = SP.CSS
     SLIDE_BODY = SP.body(A, J) if J else ""
@@ -318,6 +379,46 @@ def main() -> int:
       rather than claim there wasn't one. A second known limit: farthest-point is the
       wrong tool for the <em>last</em> rare category — it needs ~101 episodes to cover all
       {cov['prop combos']['total']} prop combos where random needs ~60.</p>
+  </div>
+
+  <h2>What's next</h2>
+  <div class="grid3">
+    <div class="card">
+      <div class="herol">Frames that matter, not frames spaced by time</div>
+      <p class="note">Today we sample 32 frames <strong>uniformly in time</strong>, which is
+        a statement about the clock, not about the task. The frames that carry the
+        manipulation — first contact, the object changing state, the release — are not
+        evenly spaced.</p>
+      <p class="note">We already tried the cheap version and <strong>lost</strong>: four
+        CPU policies (thumbnail farthest-point, motion peaks, motion-gated) all failed to
+        beat <code>np.linspace</code>, closing 0.0% of the gap to a full-GPU oracle, and
+        keyframe pooling lost to mean pooling (+0.319 vs +0.352). That is why uniform is
+        in the pipeline today.</p>
+      <p class="note">Round two is <strong>content-aware</strong> rather than cheap:
+        contact and action-boundary detection, and the registry's own
+        <code>segments</code> annotations where they exist. Same harness, same oracle
+        metric — so the next attempt is falsified or adopted the same way this one was.</p>
+    </div>
+    <div class="card">
+      <div class="herol">A second task, and a second scene</div>
+      <p class="note">Every number here comes from one task, one lab, one rig and
+        <strong>one scene</strong>. That kills the "you are just measuring backgrounds"
+        objection by construction — the background never varies — but it also means we
+        have not shown the score transfers.</p>
+      <p class="note">The registry has 27,997 task names and 402 scenes. The same index
+        build runs unchanged against any slice of them; it is a GPU-hours question, not a
+        method question.</p>
+    </div>
+    <div class="card">
+      <div class="herol">Diversity that is not appearance</div>
+      <p class="note">DINOv2 sees pixels, so two episodes with identical trajectories in
+        different lighting read as different. Each episode also carries
+        <code>obs_ee_pose</code>, <code>obs_joints</code> and <code>obs_gripper</code> —
+        about 10 KB per episode.</p>
+      <p class="note">Scoring diversity over <strong>trajectories</strong> and comparing
+        it to the visual score would separate "looks different" from "moves
+        differently" — the distinction that actually matters for a manipulation policy.</p>
+    </div>
   </div>
 
   <div class="foot">

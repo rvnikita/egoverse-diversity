@@ -232,3 +232,24 @@ benefit point the same way.
 honest number, and the coverage story (+33% relative, 3.3x exclusive coverage) carries the
 visual. The metadata-coverage curves were recomputed against cluster cover so every figure
 on the page describes the same subset.
+
+## 2026-08-15 — Cost argument reframed as break-even, and demoted below stability
+**Decision:** The "why this compounds" section is now a cumulative-cost curve with the
+break-even point marked (35 subset scorings), and the copy states outright that dollars
+are the weakest form of the argument.
+**Why:** The three-tile version leaned on "1,560 subsets scored" (an arbitrary count — it
+is just how many rows our own experiment produced) and "~$13 for the same sweep through an
+LLM" (hypothetical spend we never made). Both invite "you picked the comparison". The
+honest arithmetic is unflattering and worth saying: gpt-4o is $0.0016 per call, so 10,000
+scorings is only $16 of API spend. What actually does not scale is 10,000 x 1.5 s of
+serial latency, and the fact that the answers are not reproducible.
+**Consequence:** stability and falsifiability lead; cost supports.
+
+## 2026-08-15 — A "what's next" section, leading with frame selection
+**Decision:** Added three forward items: content-aware frame selection, a second
+task/scene, and trajectory-based (non-appearance) diversity.
+**Why:** Uniform-in-time frame sampling is a statement about the clock, not the task, and
+it is the most obvious weakness of the current pipeline. Stating it first — together with
+the fact that our four cheap policies already lost to np.linspace and why that means the
+next attempt must be content-aware rather than cheaper — turns the negative result into
+the reason the roadmap is shaped the way it is, instead of leaving a judge to find it.
