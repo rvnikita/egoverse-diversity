@@ -10,12 +10,16 @@ from __future__ import annotations
 
 import json
 import pathlib
+import sys
 
 import numpy as np
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import slide_parts as SP  # noqa: E402
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 RESULTS = ROOT / "results"
-OUT = RESULTS / "dashboard.html"
+OUT = RESULTS / "index.html"   # one file: the slide, then the evidence under it
 
 # Validated 3-slot categorical palette (all-pairs, light and dark) — see dataviz skill.
 C = {
@@ -99,73 +103,6 @@ code{font:12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(
 .ctl button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 """
 
-CLOUD_JS = """
-(function(){
-  const D=%(data)s, cv=document.getElementById('cloud'), tip=document.getElementById('tip');
-  const wrap=document.getElementById('cloudwrap'), ctx=cv.getContext('2d');
-  let ax=-0.35, ay=0.6, drag=false, px=0, py=0, spin=true, show={random:true,diverse:true};
-  const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  let W=0,H=0,proj=[];
-  function size(){const r=cv.getBoundingClientRect();
-    W=r.width;H=r.height;const d=window.devicePixelRatio||1;
-    cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0);}
-  function draw(){
-    const cp=css('--pool'), c1=css('--s1'), c2=css('--s2'), surf=css('--surface');
-    ctx.clearRect(0,0,W,H);
-    const ca=Math.cos(ay),sa=Math.sin(ay),cb=Math.cos(ax),sb=Math.sin(ax);
-    const s=Math.min(W,H)*0.20, cx=W/2, cy=H/2;
-    proj=[];
-    for(let i=0;i<D.x.length;i++){
-      const g=D.g[i];
-      if(g===1&&!show.random) continue;
-      if(g===2&&!show.diverse) continue;
-      let x=D.x[i],y=D.y[i],z=D.z[i];
-      let x1=x*ca+z*sa, z1=-x*sa+z*ca;          // yaw
-      let y1=y*cb-z1*sb, z2=y*sb+z1*cb;         // pitch
-      const p=2.6/(2.6+z2*0.28);                 // gentle perspective
-      proj.push({X:cx+x1*s*p, Y:cy-y1*s*p, z:z2, g:g, i:i, p:p});
-    }
-    proj.sort((a,b)=>b.z-a.z);                   // painter's algorithm
-    for(const q of proj){
-      const sel=q.g>0;
-      ctx.beginPath();
-      ctx.arc(q.X,q.Y,(sel?5.2:2.0)*q.p,0,6.2832);
-      ctx.fillStyle=q.g===1?c1:q.g===2?c2:cp;
-      ctx.globalAlpha=sel?1:0.34;
-      ctx.fill();
-      if(sel){ctx.globalAlpha=1;ctx.lineWidth=1.6;ctx.strokeStyle=surf;ctx.stroke();}
-    }
-    ctx.globalAlpha=1;
-  }
-  function tick(){ if(spin&&!drag){ ay+=0.0022; draw(); } requestAnimationFrame(tick); }
-  cv.addEventListener('pointerdown',e=>{drag=true;spin=false;px=e.clientX;py=e.clientY;
-    cv.classList.add('drag');cv.setPointerCapture(e.pointerId);});
-  cv.addEventListener('pointerup',e=>{drag=false;cv.classList.remove('drag');});
-  cv.addEventListener('pointermove',e=>{
-    if(drag){ ay+=(e.clientX-px)*0.008; ax+=(e.clientY-py)*0.008;
-      ax=Math.max(-1.5,Math.min(1.5,ax)); px=e.clientX; py=e.clientY; draw(); return; }
-    const r=cv.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
-    let best=null,bd=13*13;
-    for(const q of proj){const dx=q.X-mx,dy=q.Y-my,d2=dx*dx+dy*dy;
-      if(d2<bd){bd=d2;best=q;}}
-    if(best){ tip.style.opacity=1; tip.style.left=(best.X+12)+'px';
-      tip.style.top=(best.Y-10)+'px';
-      tip.textContent=D.label[best.i]+(best.g===1?'  · random':best.g===2?'  · diverse':''); }
-    else tip.style.opacity=0;
-  });
-  cv.addEventListener('pointerleave',()=>{tip.style.opacity=0;});
-  document.querySelectorAll('[data-toggle]').forEach(b=>{
-    b.addEventListener('click',()=>{
-      const k=b.dataset.toggle;
-      if(k==='spin'){spin=!spin;b.setAttribute('aria-pressed',spin);}
-      else{show[k]=!show[k];b.setAttribute('aria-pressed',show[k]);draw();}
-    });
-  });
-  window.addEventListener('resize',()=>{size();draw();});
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
-  size(); draw(); tick();
-})();
-"""
 
 
 def bars_coverage(cov, axis, w=560, rowh=30):
@@ -237,19 +174,6 @@ def main() -> int:
         f = RESULTS / "sheets" / f"{nm}.jpg.b64"
         sheets[nm] = f.read_text() if f.exists() else ""
 
-    # ---- 3D point cloud payload
-    pr = A["projection"]
-    g = [0] * A["n_episodes"]
-    for i in R["idx"]:
-        g[i] = 1
-    for i in Dv["idx"]:
-        g[i] = 2
-    combos = sorted({c for c in pr["combo"]})
-    data = json.dumps({
-        "x": pr["x"], "y": pr["y"], "z": pr["z"], "g": g,
-        "label": [f"episode {i}" for i in range(A["n_episodes"])],
-    }, separators=(",", ":"))
-
     def subset_card(name, s, colour, sheet):
         return f"""
         <div class="card">
@@ -316,20 +240,30 @@ def main() -> int:
     <strong>one-off index</strong>, a judge is a <strong>per-query cost</strong>. Curation is
     not one question — it is thousands of subset comparisons in a loop.</p>"""
 
+    SLIDE_CSS = SP.CSS
+    SLIDE_BODY = SP.body(A, J) if J else ""
+    SLIDE_JS = SP.JS % {"data": SP.payload(A)}
+
     html = f"""<!doctype html><html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Diversity Index</title>
-<style>{CSS % C}</style></head><body>
+<style>{CSS % C}
+#hero{{background:#0a0a09;height:100vh;min-height:620px;display:grid;place-items:center;
+  overflow:hidden;position:relative}}
+#stage{{transform-origin:center center}}
+#cue{{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:#8f8e86;
+  font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:600}}
+{SLIDE_CSS}
+</style></head><body>
+<div id="hero"><div id="stage">{SLIDE_BODY}</div>
+  <div id="cue">scroll for the evidence &#8595;</div></div>
 <div class="wrap">
-  <h1>Score diversity once.<br>Query it forever.</h1>
-  <p class="sub">A diversity score for video subsets built from vision embeddings —
-     no text encoder anywhere in the pipeline. It ranks two subsets, it gives the same
-     answer every time, and once the index exists every further question is free.</p>
-  <p class="meta">Track 2 &#183; EgoVerse Data Optimization &amp; Evaluation Suite &#183;
-     {A['n_episodes']} <code>cup_on_saucer</code> episodes &#183; DINOv2-base on a Modal L4
-     &#183; <code>python run_all.py</code> reproduces every number below in seconds,
-     on a laptop, with no GPU and no credentials</p>
+  <h1>The evidence</h1>
+  <p class="sub">Every number on the slide above, with the measurement behind it.</p>
+  <p class="meta">{A['n_episodes']} <code>cup_on_saucer</code> episodes &#183;
+     DINOv2-base on a Modal L4 &#183; <code>python run_all.py</code> regenerates all of it
+     in seconds, on a laptop, with no GPU and no credentials</p>
 
   <h2>The deliverable: a score that ranks two subsets</h2>
   <div class="grid2">
@@ -345,22 +279,6 @@ def main() -> int:
      far higher ({Sp['vendi']:.2f}) but collects outliers and represents only
      {Sp['covered_pct']:.0f}% of the corpus against cluster cover's
      {Dv['covered_pct']:.0f}%. The highest score is not the best subset.</p>
-
-  <h2>The whole corpus, and where each subset lands</h2>
-  <div class="card">
-    <div class="ctl">
-      <button data-toggle="random" aria-pressed="true">random {K}</button>
-      <button data-toggle="diverse" aria-pressed="true">diverse {K}</button>
-      <button data-toggle="spin" aria-pressed="true">auto-rotate</button>
-    </div>
-    <div id="cloudwrap"><canvas id="cloud"></canvas><div id="tip"></div></div>
-    <p class="note">All {A['n_episodes']} episodes in the first three principal components
-      of the embedding space. Drag to rotate, hover a point to identify it.
-      <span class="dot" style="background:var(--s1)"></span>random sits in the mode;
-      <span class="dot" style="background:var(--s2)"></span>diverse spreads across it.
-      This is the "represent diversity" half of the brief — the score is the number,
-      this is the shape it is measuring.</p>
-  </div>
 
   <h2>The score tracks things it was never shown</h2>
   <div class="grid2">
@@ -412,7 +330,16 @@ def main() -> int:
     to mean pooling (+0.319 vs +0.352 separation). Both experiments are in the repo.
   </div>
 </div>
-<script>{CLOUD_JS % {"data": data}}</script>
+<script>
+(function(){{
+  var st=document.getElementById('stage');
+  function fit(){{
+    var h=document.getElementById('hero').clientHeight;
+    st.style.transform='scale('+Math.min(innerWidth/1600,h/900)+')';
+  }}
+  addEventListener('resize',fit); fit();
+}})();
+{SLIDE_JS}</script>
 </body></html>"""
 
     OUT.write_text(html, encoding="utf-8")

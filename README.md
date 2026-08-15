@@ -7,7 +7,8 @@ A diversity score for video subsets built from vision embeddings — **no text e
 anywhere in the pipeline**. It ranks two subsets, it returns the same answer every time,
 and once the index exists every further question costs nothing.
 
-**[→ the dashboard](results/dashboard.html)** (open it locally, or run the one command below)
+**[→ open `results/index.html`](results/index.html)** — one page: the summary slide fills
+the first screen, scroll for the evidence behind every number.
 
 ## The pitch
 
@@ -70,7 +71,7 @@ score admiring its own geometry:
 ```bash
 pip install -r requirements.txt
 python run_all.py            # ~6 s, CPU only, no credentials, no network
-open results/dashboard.html
+open results/index.html
 ```
 
 Everything regenerates from the 12 MB `results/episode_vectors.npz` committed here.
@@ -114,19 +115,19 @@ AWS_PROFILE=egoverse python scripts/build_cup_embeddings.py   # 29,184 frames, 2
 | Path | What |
 |---|---|
 | `run_all.py` | one command, reproduces everything on CPU in ~6 s |
-| `results/dashboard.html` | **the deliverable** |
+| `results/index.html` | **the deliverable** — slide on screen one, dashboard below |
+| `results/slide.html` | the same slide standalone, for a submission form |
 | `results/episode_vectors.npz` | 912 × 768 pooled DINOv2 vectors + metadata (committed) |
 | `src/diversity.py` | Vendi score, farthest-point, pooling, duplication test |
 | `src/modal_embed.py` | DINOv2 embedding service on a Modal L4 |
 | `scripts/analysis.py` | coverage, falsification sweep, 3D projection, contact sheets |
 | `scripts/llm_judge.py` | the gpt-4o baseline, measured on the same two subsets |
-| `scripts/build_dashboard.py` | renders the dashboard (inline SVG + canvas, no libraries) |
+| `scripts/slide_parts.py` | the slide markup, shared by both outputs |
+| `scripts/build_dashboard.py` | renders index.html (inline SVG + canvas, no libraries) |
 | `scripts/build_slide.py` | renders the one summary slide |
 | `scripts/cascade_experiment.py` | the keyframe-selection negative result |
 | `docs/egodb-findings.md` | what the registry actually contains, measured today |
 | `docs/decisions.md` | why each choice, including the ones that failed |
-
-`results/slide.html` is the one summary slide (1600x900, self-scaling, QR to this repo).
 
 `scripts/select_experiment.py` additionally measures how each selector's subset performs
 as *training data*. That is Track 1/3 territory and is not part of this submission; it

@@ -26,7 +26,8 @@ PY = sys.executable
 STEPS = [
     ("scoring, coverage, falsification sweep, 3D projection, contact sheets",
      [PY, "scripts/analysis.py"]),
-    ("dashboard", [PY, "scripts/build_dashboard.py"]),
+    ("slide", [PY, "scripts/build_slide.py"]),
+    ("single-page deliverable (slide + evidence)", [PY, "scripts/build_dashboard.py"]),
 ]
 
 # Not run by default:
@@ -52,7 +53,7 @@ def main() -> int:
             print(f"\nFAILED at step {i}: {' '.join(cmd)}")
             return r.returncode
 
-    out = ROOT / "results" / "dashboard.html"
+    out = ROOT / "results" / "index.html"
     print(f"\n{'='*72}\nDone in {time.monotonic()-t0:.0f}s.\n\n  open {out}\n")
     return 0
 
