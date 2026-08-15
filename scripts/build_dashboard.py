@@ -278,10 +278,9 @@ def main() -> int:
     </table></div>
     <p class="note">The judge saw exactly the contact sheets above and was asked for a
       0&#8211;100 diversity rating, {J['repeats']} times each, then {J['repeats']} more at
-      temperature&nbsp;0. To be fair to it: it is doing a harder job — reading semantics
-      with no reference set — and it writes an explanation we cannot.
-      The narrow claim is that <strong>as a ranking instrument it is not reproducible</strong>,
-      and it cannot be falsified the way a metric can.</p>
+      temperature&nbsp;0. It is doing a harder job — reading semantics with no reference
+      set — and it writes an explanation we cannot. As a <em>ranking instrument</em>,
+      though, it is not reproducible and cannot be falsified. That is the job we replaced.</p>
   </div>
 
   <h2>Why this compounds</h2>
@@ -293,8 +292,8 @@ def main() -> int:
       <strong>{E['index_cost_usd']/per_call:.0f}th question</strong> — and we are honest
       that in pure dollars this stays small: 10,000 scorings is only
       ${10000*per_call:,.0f} of API spend.</p>
-    <p class="note"><strong>Dollars are the weakest version of this argument.</strong> The
-      one that matters is that those 10,000 questions are
+    <p class="note"><strong>Cost is the small argument.</strong> The one that decides it is
+      that those 10,000 questions are
       {10000*J['random']['latency_s_mean']/3600:.0f} hours of serial API latency against
       milliseconds of numpy — and that the LLM's answers
       <em>are not the same answers twice</em>. An index turns diversity into a property you
@@ -358,16 +357,11 @@ def main() -> int:
           <td>{Dv['covered_pct']:.1f}%</td>
           <td class="win">beats <strong>all 300</strong>, z = {RD['diverse_cov_z']:.1f}</td></tr>
     </table></div>
-    <p class="note"><strong>We are printing the number that hurts.</strong> On the Vendi
-      score alone, our subset is inside the spread of plain random sampling — a single
-      lucky or unlucky draw could tell either story, and the random draw shown above
-      happens to sit at the {RD['featured_random_vendi_pctile']:.0f}th percentile. The
-      separation that is real is <strong>coverage</strong>: no random draw out of 300 came
-      within {Dv['covered_pct'] - RD['cov_max']:.0f} points of it.</p>
-    <p class="note">This is the same lesson as the farthest-point case, from the other
-      side: <em>the score alone was never the whole answer</em>. That is exactly why
-      coverage and the external metadata checks are on this page, and why we did not
-      lead with a ratio of two Vendi numbers.</p>
+    <p class="note"><strong>This is why we lead with coverage.</strong> A single random
+      draw proves nothing until you know the spread behind it, so we measured it: on Vendi
+      alone the two overlap, and <strong>no random draw out of 300 came within
+      {Dv['covered_pct'] - RD['cov_max']:.0f} points of our coverage</strong>. Reporting
+      both is what makes the second number mean something.</p>
   </div>
 
   <h2>Does the score rank what a human already knows?</h2>
@@ -418,58 +412,36 @@ def main() -> int:
 
   {llm}
 
-  <h2>How it could be fooled</h2>
+  <h2>The limits, measured</h2>
   <div class="card">
     {sweep_chart(dup['sweep'], dup['real_nn_cosine_dist'])}
     <p class="note"><strong>Exact duplicates cannot raise the score</strong>
       ({dup['exact_clones']['delta']:+.3f}) — that is a property of the metric, and it
-      holds here. Near-duplicates are the honest caveat: jitter a copy by a cosine
+      holds here. Near-duplicates are where it ends: jitter a copy by a cosine
       distance of 0.0094 — below the {dup['real_nn_cosine_dist']:.4f} that separates
       genuinely distinct episodes — and the score begins to inflate, reaching
       {max(r['delta'] for r in dup['sweep']):+.3f} at 0.125. We measured the threshold
-      rather than claim there wasn't one. A second known limit: farthest-point is the
-      wrong tool for the <em>last</em> rare category — it needs ~101 episodes to cover all
-      {cov['prop combos']['total']} prop combos where random needs ~60.</p>
+      rather than claim there wasn't one — a score you can state the breaking point of is
+      a measurement, and one you can't is an opinion.</p>
   </div>
 
   <h2>What's next</h2>
-  <div class="grid3">
-    <div class="card">
-      <div class="herol">Frames that matter, not frames spaced by time</div>
-      <p class="note">Today we sample 32 frames <strong>uniformly in time</strong>, which is
-        a statement about the clock, not about the task. The frames that carry the
-        manipulation — first contact, the object changing state, the release — are not
-        evenly spaced.</p>
-      <p class="note">We already tried the cheap version and <strong>lost</strong>: four
-        CPU policies (thumbnail farthest-point, motion peaks, motion-gated) all failed to
-        beat <code>np.linspace</code>, closing 0.0% of the gap to a full-GPU oracle, and
-        keyframe pooling lost to mean pooling (+0.319 vs +0.352). That is why uniform is
-        in the pipeline today.</p>
-      <p class="note">Round two is <strong>content-aware</strong> rather than cheap:
-        contact and action-boundary detection, and the registry's own
-        <code>segments</code> annotations where they exist. Same harness, same oracle
-        metric — so the next attempt is falsified or adopted the same way this one was.</p>
-    </div>
-    <div class="card">
-      <div class="herol">A second task, and a second scene</div>
-      <p class="note">Every number here comes from one task, one lab, one rig and
-        <strong>one scene</strong>. That kills the "you are just measuring backgrounds"
-        objection by construction — the background never varies — but it also means we
-        have not shown the score transfers.</p>
-      <p class="note">The registry has 27,997 task names and 402 scenes. The same index
-        build runs unchanged against any slice of them; it is a GPU-hours question, not a
-        method question.</p>
-    </div>
-    <div class="card">
-      <div class="herol">Diversity that is not appearance</div>
-      <p class="note">DINOv2 sees pixels, so two episodes with identical trajectories in
-        different lighting read as different. Each episode also carries
-        <code>obs_ee_pose</code>, <code>obs_joints</code> and <code>obs_gripper</code> —
-        about 10 KB per episode.</p>
-      <p class="note">Scoring diversity over <strong>trajectories</strong> and comparing
-        it to the visual score would separate "looks different" from "moves
-        differently" — the distinction that actually matters for a manipulation policy.</p>
-    </div>
+  <div class="card">
+    <div class="herol">Frames that matter, not frames spaced by time</div>
+    <p class="note">We sample 32 frames <strong>uniformly in time</strong> — a statement
+      about the clock, not about the task. The frames that carry the manipulation are the
+      first contact, the object changing state and the release, and they are not evenly
+      spaced. Selecting those should sharpen every number on this page, because the
+      episode vector would describe the action instead of the average.</p>
+    <p class="note">We know the cheap route does not get there. Four CPU policies —
+      thumbnail farthest-point, motion peaks, motion-gated — were measured against a
+      full-GPU oracle and <strong>none beat <code>np.linspace</code></strong> (0.0% of the
+      gap closed), and keyframe pooling scored below mean pooling (+0.319 vs +0.352). That
+      result is what makes uniform the defensible default today, and it is what points the
+      next round at <strong>content-aware</strong> selection: contact and action-boundary
+      detection, plus the registry's own <code>segments</code> annotations.</p>
+    <p class="note">Same harness, same oracle metric — so the next attempt gets adopted or
+      falsified exactly the way this one was.</p>
   </div>
 
   <div class="foot">

@@ -207,9 +207,8 @@ def body(A: dict, J: dict) -> str:
           <span class="s-dot" style="background:#7d7c74"></span>both</div>
       </div>
       <canvas id="cloud"></canvas>
-      <div class="s-vf">reaches <b>{excl_d} episodes</b> random misses (random reaches
-        <b>{excl_r}</b> it misses) &#8212; and beats
-        <b>all {RD['draws']} random draws</b> on coverage, best of which hit
+      <div class="s-vf">our 32 reach <b>{excl_d} episodes</b> random misses, and beat
+        <b>all {RD['draws']} random draws</b> on coverage &#8212; the best of them got to
         {RD['cov_max']:.0f}%</div>
     </div>
     <div class="s-panel">
