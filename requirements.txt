@@ -1,0 +1,10 @@
+# Laptop-side deps. The Modal container builds its own image (see src/modal_vision.py).
+modal>=1.5
+requests>=2.32
+python-dotenv>=1.0
+pillow>=11
+numpy>=2
+scipy>=1.14           # connected components for the offline colour detector
+elevenlabs>=2.60      # STT + TTS
+opencv-python>=4.10   # webcam capture (ffmpeg fallback exists)
+sounddevice>=0.5      # mic capture with silence detection (ffmpeg fallback exists)

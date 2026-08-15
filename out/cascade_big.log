@@ -1,0 +1,72 @@
+45 episodes of fold_clothes @ microagi, 144-753 frames each
+downloaded 45
+  [1/45] 2026-05-05-09-47-17-54 frames= 160 cheap=0.21s gpu=34.3s
+  [2/45] 2026-04-24-05-55-53-87 frames= 254 cheap=0.13s gpu=3.0s
+  [3/45] 2026-06-10-07-57-57-93 frames= 466 cheap=0.12s gpu=3.5s
+  [4/45] 2026-06-03-18-05-39-13 frames= 247 cheap=0.09s gpu=1.7s
+  [5/45] 2026-06-21-19-55-52-21 frames= 310 cheap=0.11s gpu=2.4s
+  [6/45] 2026-05-29-16-30-32-67 frames= 275 cheap=0.11s gpu=2.0s
+  [7/45] 2026-04-18-13-14-53-05 frames= 444 cheap=0.12s gpu=3.2s
+  [8/45] 2026-05-18-18-07-01-83 frames= 482 cheap=0.13s gpu=3.8s
+  [9/45] 2026-04-09-07-14-47-36 frames= 316 cheap=0.09s gpu=2.3s
+  [10/45] 2026-04-23-15-27-12-10 frames= 197 cheap=0.08s gpu=1.4s
+  [11/45] 2026-06-17-13-52-31-85 frames= 724 cheap=0.17s gpu=5.9s
+  [12/45] 2026-05-05-13-19-45-22 frames= 544 cheap=0.14s gpu=5.6s
+  [13/45] 2026-06-04-14-25-48-47 frames= 275 cheap=0.10s gpu=3.2s
+  [14/45] 2026-06-25-05-31-21-49 frames= 219 cheap=0.08s gpu=1.7s
+  [15/45] 2026-04-20-19-45-35-56 frames= 510 cheap=0.14s gpu=4.3s
+  [16/45] 2026-04-19-11-01-13-04 frames= 194 cheap=0.08s gpu=1.5s
+  [17/45] 2026-06-08-15-56-06-31 frames= 423 cheap=0.16s gpu=4.0s
+  [18/45] 2026-05-12-16-53-58-92 frames= 217 cheap=0.09s gpu=2.1s
+  [19/45] 2026-06-08-15-29-31-69 frames= 220 cheap=0.08s gpu=1.8s
+  [20/45] 2026-06-02-19-37-45-64 frames= 251 cheap=0.08s gpu=2.2s
+  [21/45] 2026-05-27-14-39-52-61 frames= 753 cheap=0.18s gpu=7.5s
+  [22/45] 2026-04-28-07-13-42-48 frames= 244 cheap=0.13s gpu=2.4s
+  [23/45] 2026-05-16-20-07-39-01 frames= 165 cheap=0.06s gpu=1.2s
+  [24/45] 2026-04-09-12-44-35-31 frames= 295 cheap=0.09s gpu=2.1s
+  [25/45] 2026-06-13-08-43-56-69 frames= 144 cheap=0.09s gpu=1.1s
+  [26/45] 2026-05-26-13-42-40-37 frames= 215 cheap=0.08s gpu=1.6s
+  [27/45] 2026-04-01-10-56-34-88 frames= 153 cheap=0.09s gpu=1.0s
+  [28/45] 2026-04-19-08-10-30-41 frames= 244 cheap=0.09s gpu=2.5s
+  [29/45] 2026-06-21-06-50-19-38 frames= 316 cheap=0.12s gpu=2.3s
+  [30/45] 2026-03-30-13-01-24-63 frames= 416 cheap=0.13s gpu=3.5s
+  [31/45] 2026-05-14-16-27-44-57 frames= 412 cheap=0.10s gpu=3.1s
+  [32/45] 2026-05-23-16-46-27-75 frames= 282 cheap=0.09s gpu=2.1s
+  [33/45] 2026-04-29-01-21-22-40 frames= 156 cheap=0.06s gpu=1.0s
+  [34/45] 2026-05-30-07-48-36-43 frames= 176 cheap=0.06s gpu=1.3s
+  [35/45] 2026-04-27-13-32-59-52 frames= 247 cheap=0.07s gpu=1.7s
+  [36/45] 2026-06-09-07-52-40-12 frames= 193 cheap=0.08s gpu=1.4s
+  [37/45] 2026-05-29-17-53-38-42 frames= 158 cheap=0.06s gpu=1.3s
+  [38/45] 2026-04-27-08-07-25-57 frames= 379 cheap=0.11s gpu=5.0s
+  [39/45] 2026-05-22-17-57-10-71 frames= 322 cheap=0.11s gpu=2.9s
+  [40/45] 2026-04-20-11-49-44-28 frames= 274 cheap=0.09s gpu=2.2s
+  [41/45] 2026-03-27-18-50-36-59 frames= 246 cheap=0.09s gpu=2.6s
+  [42/45] 2026-06-19-07-00-26-70 frames= 732 cheap=0.14s gpu=6.2s
+  [43/45] 2026-05-25-07-46-28-38 frames= 583 cheap=0.13s gpu=4.4s
+  [44/45] 2026-06-21-14-07-09-32 frames= 662 cheap=0.14s gpu=6.0s
+  [45/45] 2026-06-19-05-15-33-88 frames= 163 cheap=0.06s gpu=1.3s
+
+=== cost model (measured over 14,658 frames) ===
+  cheap tier (CPU, ALL frames):   4.77s = 325.3 us/frame  (14,658 frames)
+  oracle    (GPU, ALL frames):  157.5s = 10.7 ms/frame  (14,658 freshly embedded)
+  GPU is 33x the cheap tier
+
+=== coverage by policy (lower is better) ===
+policy  uniform  motion_peaks  cheap_fps  motion_gated_fps  ORACLE_fps  ORACLE_greedy
+k                                                                                    
+2        0.2275        0.2902     0.2024            0.2076      0.2250         0.1494
+4        0.1603        0.2517     0.1656            0.1697      0.1869         0.1207
+8        0.1203        0.2180     0.1303            0.1339      0.1491         0.0964
+16       0.0902        0.1704     0.0996            0.1007      0.1113         0.0746
+32       0.0648        0.1250     0.0704            0.0741      0.0755         0.0553
+64       0.0433        0.0818     0.0461            0.0539      0.0471         0.0374
+
+=== % of oracle-quality retained, and GPU saved ===
+  k=  2  best=cheap_fps         coverage 0.2024 (uniform 0.2275, oracle 0.1494)  gap closed  32.1%  GPU used  0.6% of all-frames
+  k=  4  best=uniform           coverage 0.1603 (uniform 0.1603, oracle 0.1207)  gap closed   0.0%  GPU used  1.2% of all-frames
+  k=  8  best=uniform           coverage 0.1203 (uniform 0.1203, oracle 0.0964)  gap closed   0.0%  GPU used  2.5% of all-frames
+  k= 16  best=uniform           coverage 0.0902 (uniform 0.0902, oracle 0.0746)  gap closed   0.0%  GPU used  4.9% of all-frames
+  k= 32  best=uniform           coverage 0.0648 (uniform 0.0648, oracle 0.0553)  gap closed   0.0%  GPU used  9.8% of all-frames
+  k= 64  best=uniform           coverage 0.0433 (uniform 0.0433, oracle 0.0374)  gap closed   0.0%  GPU used 19.6% of all-frames
+
+wrote /Users/rvnikita/dev/hackathons/modal/out/cascade_results.csv and /Users/rvnikita/dev/hackathons/modal/out/cascade_cost.json

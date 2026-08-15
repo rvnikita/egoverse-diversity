@@ -1,0 +1,170 @@
+{
+  "n_episodes": 912,
+  "n_failures": 165,
+  "base_rate": 0.1809,
+  "n_combos": 12,
+  "n_operators": 5,
+  "n_days": 10,
+  "split": "session",
+  "pool": 495,
+  "test": 417,
+  "frames_per_episode": 32,
+  "by_budget": {
+    "16": {
+      "random": {
+        "vendi": 1.726,
+        "vendi_sd": 0.19,
+        "fails": 2.8,
+        "fails_sd": 1.2,
+        "combo_cov": 7.75,
+        "bal_acc": 0.585,
+        "auroc": 0.6152
+      },
+      "fps": {
+        "vendi": 2.954,
+        "vendi_sd": 0.046,
+        "fails": 9.9,
+        "fails_sd": 1.02,
+        "combo_cov": 8.65,
+        "bal_acc": 0.5202,
+        "auroc": 0.5787
+      },
+      "kmedoid": {
+        "vendi": 1.847,
+        "vendi_sd": 0.092,
+        "fails": 2.0,
+        "fails_sd": 0.71,
+        "combo_cov": 8.8,
+        "bal_acc": 0.5763,
+        "auroc": 0.652
+      },
+      "matched_random": {
+        "vendi": 1.818,
+        "vendi_sd": 0.113,
+        "fails": 9.9,
+        "fails_sd": 1.02,
+        "combo_cov": 8.0,
+        "bal_acc": 0.6045,
+        "auroc": 0.6526
+      },
+      "enrichment_fps_over_base": 3.42
+    },
+    "32": {
+      "random": {
+        "vendi": 1.841,
+        "vendi_sd": 0.106,
+        "fails": 6.5,
+        "fails_sd": 2.04,
+        "combo_cov": 9.15,
+        "bal_acc": 0.6126,
+        "auroc": 0.6625
+      },
+      "fps": {
+        "vendi": 2.893,
+        "vendi_sd": 0.048,
+        "fails": 18.2,
+        "fails_sd": 0.83,
+        "combo_cov": 9.75,
+        "bal_acc": 0.5487,
+        "auroc": 0.6001
+      },
+      "kmedoid": {
+        "vendi": 2.058,
+        "vendi_sd": 0.062,
+        "fails": 5.0,
+        "fails_sd": 1.0,
+        "combo_cov": 9.4,
+        "bal_acc": 0.6145,
+        "auroc": 0.6891
+      },
+      "matched_random": {
+        "vendi": 1.935,
+        "vendi_sd": 0.097,
+        "fails": 18.2,
+        "fails_sd": 0.83,
+        "combo_cov": 9.35,
+        "bal_acc": 0.6475,
+        "auroc": 0.6987
+      },
+      "enrichment_fps_over_base": 3.14
+    },
+    "64": {
+      "random": {
+        "vendi": 1.885,
+        "vendi_sd": 0.098,
+        "fails": 13.5,
+        "fails_sd": 3.36,
+        "combo_cov": 9.7,
+        "bal_acc": 0.6664,
+        "auroc": 0.7207
+      },
+      "fps": {
+        "vendi": 2.654,
+        "vendi_sd": 0.024,
+        "fails": 35.4,
+        "fails_sd": 1.98,
+        "combo_cov": 10.0,
+        "bal_acc": 0.6267,
+        "auroc": 0.6409
+      },
+      "kmedoid": {
+        "vendi": 2.19,
+        "vendi_sd": 0.025,
+        "fails": 15.6,
+        "fails_sd": 0.89,
+        "combo_cov": 10.0,
+        "bal_acc": 0.6407,
+        "auroc": 0.6958
+      },
+      "matched_random": {
+        "vendi": 2.094,
+        "vendi_sd": 0.115,
+        "fails": 35.4,
+        "fails_sd": 1.98,
+        "combo_cov": 9.95,
+        "bal_acc": 0.6754,
+        "auroc": 0.7118
+      },
+      "enrichment_fps_over_base": 3.06
+    },
+    "128": {
+      "random": {
+        "vendi": 1.968,
+        "vendi_sd": 0.062,
+        "fails": 25.35,
+        "fails_sd": 2.83,
+        "combo_cov": 9.9,
+        "bal_acc": 0.7028,
+        "auroc": 0.7528
+      },
+      "fps": {
+        "vendi": 2.406,
+        "vendi_sd": 0.012,
+        "fails": 55.9,
+        "fails_sd": 1.29,
+        "combo_cov": 10.0,
+        "bal_acc": 0.6788,
+        "auroc": 0.6871
+      },
+      "kmedoid": {
+        "vendi": 2.209,
+        "vendi_sd": 0.024,
+        "fails": 38.8,
+        "fails_sd": 2.28,
+        "combo_cov": 10.0,
+        "bal_acc": 0.7015,
+        "auroc": 0.7253
+      },
+      "matched_random": {
+        "vendi": 2.058,
+        "vendi_sd": 0.067,
+        "fails": 55.9,
+        "fails_sd": 1.29,
+        "combo_cov": 10.0,
+        "bal_acc": 0.7069,
+        "auroc": 0.755
+      },
+      "enrichment_fps_over_base": 2.41
+    }
+  }
+}

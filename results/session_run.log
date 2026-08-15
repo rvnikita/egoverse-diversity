@@ -1,0 +1,59 @@
+912 episodes | 165 failures (18.1%) | 12 prop combos | 5 operators | 10 recording days
+split=session: pool 495 (95 fail) / test 417 (70 fail)
+
+  frames= 4 k= 16 done
+  frames= 4 k= 32 done
+  frames= 4 k= 64 done
+  frames= 4 k=128 done
+  frames= 8 k= 16 done
+  frames= 8 k= 32 done
+  frames= 8 k= 64 done
+  frames= 8 k=128 done
+  frames=32 k= 16 done
+  frames=32 k= 32 done
+  frames=32 k= 64 done
+  frames=32 k=128 done
+
+=== selectors @ 32 frames/episode, split=session ===
+                    vendi  fails  fails_sd  combo    op  bal_acc  auroc
+k   selector                                                           
+16  fps             2.954   9.90     1.021   8.65  5.00    0.520  0.579
+    kmedoid         1.847   2.00     0.707   8.80  4.60    0.576  0.652
+    matched_random  1.818   9.90     1.021   8.00  4.50    0.605  0.653
+    random          1.726   2.80     1.196   7.75  3.90    0.585  0.615
+32  fps             2.893  18.20     0.834   9.75  5.00    0.549  0.600
+    kmedoid         2.058   5.00     1.000   9.40  4.80    0.614  0.689
+    matched_random  1.935  18.20     0.834   9.35  4.80    0.648  0.699
+    random          1.841   6.50     2.039   9.15  4.25    0.613  0.662
+64  fps             2.654  35.40     1.984  10.00  5.00    0.627  0.641
+    kmedoid         2.190  15.60     0.894  10.00  5.00    0.641  0.696
+    matched_random  2.094  35.40     1.984   9.95  5.00    0.675  0.712
+    random          1.885  13.50     3.364   9.70  4.85    0.666  0.721
+128 fps             2.406  55.90     1.294  10.00  5.00    0.679  0.687
+    kmedoid         2.209  38.80     2.280  10.00  5.00    0.701  0.725
+    matched_random  2.058  55.90     1.294  10.00  5.00    0.707  0.755
+    random          1.968  25.35     2.834   9.90  5.00    0.703  0.753
+
+=== frames/episode ablation (is the frame knob free?) k=32 ===
+                       vendi  fails  auroc
+frames selector                           
+4      fps             3.424  13.90  0.634
+       kmedoid         2.266   3.60  0.695
+       matched_random  2.098  13.90  0.678
+       random          2.078   6.50  0.662
+8      fps             2.999  15.85  0.615
+       kmedoid         2.163   3.40  0.666
+       matched_random  1.997  15.85  0.678
+       random          1.923   6.50  0.662
+32     fps             2.893  18.20  0.600
+       kmedoid         2.058   5.00  0.689
+       matched_random  1.935  18.20  0.699
+       random          1.841   6.50  0.662
+
+=== Vendi vs AUROC, WITHIN each budget (pooling across budgets would just correlate size with size) ===
+  k= 16  rho=-0.346  p=0.005  (n=65)
+  k= 32  rho=-0.481  p=0.000  (n=65)
+  k= 64  rho=-0.711  p=0.000  (n=65)
+  k=128  rho=-0.603  p=0.000  (n=65)
+
+wrote /Users/rvnikita/dev/hackathons/modal/results/selection_session.csv and /Users/rvnikita/dev/hackathons/modal/results/headline_session.json

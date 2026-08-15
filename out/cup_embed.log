@@ -1,0 +1,132 @@
+912 episodes with a local mp4 (747 success / 165 failure)
+
+== decoding 32 frames/episode ==
+  100/912 episodes, 3200 frames (8s)
+  200/912 episodes, 6400 frames (16s)
+  300/912 episodes, 9600 frames (22s)
+  400/912 episodes, 12800 frames (32s)
+  500/912 episodes, 16000 frames (39s)
+  600/912 episodes, 19200 frames (53s)
+  700/912 episodes, 22400 frames (58s)
+  800/912 episodes, 25600 frames (66s)
+  900/912 episodes, 28800 frames (75s)
+  29184 frames from 912 episodes in 75s
+
+== embedding on Modal GPU ==
+  256/29184  gpu=2105ms  elapsed=13s
+  512/29184  gpu=1041ms  elapsed=15s
+  768/29184  gpu=1278ms  elapsed=17s
+  1024/29184  gpu=1168ms  elapsed=19s
+  1280/29184  gpu=1234ms  elapsed=21s
+  1536/29184  gpu=1387ms  elapsed=23s
+  1792/29184  gpu=1268ms  elapsed=25s
+  2048/29184  gpu=1340ms  elapsed=27s
+  2304/29184  gpu=1452ms  elapsed=29s
+  2560/29184  gpu=1111ms  elapsed=31s
+  2816/29184  gpu=1037ms  elapsed=33s
+  3072/29184  gpu=1001ms  elapsed=34s
+  3328/29184  gpu=1154ms  elapsed=36s
+  3584/29184  gpu=1163ms  elapsed=38s
+  3840/29184  gpu=1024ms  elapsed=40s
+  4096/29184  gpu=1020ms  elapsed=42s
+  4352/29184  gpu=1130ms  elapsed=44s
+  4608/29184  gpu=1330ms  elapsed=46s
+  4864/29184  gpu=1444ms  elapsed=48s
+  5120/29184  gpu=1115ms  elapsed=50s
+  5376/29184  gpu=1156ms  elapsed=52s
+  5632/29184  gpu=1221ms  elapsed=54s
+  5888/29184  gpu=1166ms  elapsed=56s
+  6144/29184  gpu=1027ms  elapsed=58s
+  6400/29184  gpu=1029ms  elapsed=60s
+  6656/29184  gpu=1014ms  elapsed=62s
+  6912/29184  gpu=1010ms  elapsed=64s
+  7168/29184  gpu=997ms  elapsed=66s
+  7424/29184  gpu=1100ms  elapsed=67s
+  7680/29184  gpu=1087ms  elapsed=69s
+  7936/29184  gpu=1476ms  elapsed=72s
+  8192/29184  gpu=1320ms  elapsed=74s
+  8448/29184  gpu=1498ms  elapsed=76s
+  8704/29184  gpu=1191ms  elapsed=78s
+  8960/29184  gpu=1153ms  elapsed=80s
+  9216/29184  gpu=1053ms  elapsed=82s
+  9472/29184  gpu=998ms  elapsed=84s
+  9728/29184  gpu=1024ms  elapsed=85s
+  9984/29184  gpu=1129ms  elapsed=87s
+  10240/29184  gpu=1146ms  elapsed=89s
+  10496/29184  gpu=1082ms  elapsed=91s
+  10752/29184  gpu=987ms  elapsed=92s
+  11008/29184  gpu=1009ms  elapsed=94s
+  11264/29184  gpu=1110ms  elapsed=96s
+  11520/29184  gpu=1370ms  elapsed=98s
+  11776/29184  gpu=1105ms  elapsed=100s
+  12032/29184  gpu=1132ms  elapsed=103s
+  12288/29184  gpu=1187ms  elapsed=106s
+  12544/29184  gpu=1023ms  elapsed=108s
+  12800/29184  gpu=1082ms  elapsed=111s
+  13056/29184  gpu=1142ms  elapsed=113s
+  13312/29184  gpu=993ms  elapsed=115s
+  13568/29184  gpu=1096ms  elapsed=118s
+  13824/29184  gpu=992ms  elapsed=120s
+  14080/29184  gpu=1028ms  elapsed=122s
+  14336/29184  gpu=1272ms  elapsed=125s
+  14592/29184  gpu=1184ms  elapsed=128s
+  14848/29184  gpu=1304ms  elapsed=130s
+  15104/29184  gpu=1371ms  elapsed=132s
+  15360/29184  gpu=1169ms  elapsed=134s
+  15616/29184  gpu=1138ms  elapsed=137s
+  15872/29184  gpu=1017ms  elapsed=139s
+  16128/29184  gpu=1039ms  elapsed=141s
+  16384/29184  gpu=1015ms  elapsed=143s
+  16640/29184  gpu=1009ms  elapsed=145s
+  16896/29184  gpu=1013ms  elapsed=147s
+  17152/29184  gpu=1031ms  elapsed=149s
+  17408/29184  gpu=1379ms  elapsed=152s
+  17664/29184  gpu=1118ms  elapsed=154s
+  17920/29184  gpu=1295ms  elapsed=157s
+  18176/29184  gpu=1346ms  elapsed=159s
+  18432/29184  gpu=1440ms  elapsed=161s
+  18688/29184  gpu=1422ms  elapsed=164s
+  18944/29184  gpu=1202ms  elapsed=166s
+  19200/29184  gpu=1164ms  elapsed=168s
+  19456/29184  gpu=1014ms  elapsed=170s
+  19712/29184  gpu=1022ms  elapsed=172s
+  19968/29184  gpu=1017ms  elapsed=174s
+  20224/29184  gpu=992ms  elapsed=176s
+  20480/29184  gpu=1016ms  elapsed=178s
+  20736/29184  gpu=1164ms  elapsed=181s
+  20992/29184  gpu=1089ms  elapsed=183s
+  21248/29184  gpu=1092ms  elapsed=185s
+  21504/29184  gpu=1065ms  elapsed=187s
+  21760/29184  gpu=1080ms  elapsed=189s
+  22016/29184  gpu=1364ms  elapsed=192s
+  22272/29184  gpu=1083ms  elapsed=194s
+  22528/29184  gpu=1046ms  elapsed=196s
+  22784/29184  gpu=1152ms  elapsed=199s
+  23040/29184  gpu=1028ms  elapsed=201s
+  23296/29184  gpu=1007ms  elapsed=204s
+  23552/29184  gpu=1096ms  elapsed=206s
+  23808/29184  gpu=1106ms  elapsed=208s
+  24064/29184  gpu=1536ms  elapsed=210s
+  24320/29184  gpu=1258ms  elapsed=213s
+  24576/29184  gpu=1037ms  elapsed=215s
+  24832/29184  gpu=1165ms  elapsed=217s
+  25088/29184  gpu=1363ms  elapsed=220s
+  25344/29184  gpu=1176ms  elapsed=222s
+  25600/29184  gpu=1080ms  elapsed=225s
+  25856/29184  gpu=1195ms  elapsed=227s
+  26112/29184  gpu=1020ms  elapsed=230s
+  26368/29184  gpu=1156ms  elapsed=233s
+  26624/29184  gpu=1124ms  elapsed=235s
+  26880/29184  gpu=1082ms  elapsed=237s
+  27136/29184  gpu=1348ms  elapsed=240s
+  27392/29184  gpu=1162ms  elapsed=242s
+  27648/29184  gpu=1142ms  elapsed=245s
+  27904/29184  gpu=1248ms  elapsed=247s
+  28160/29184  gpu=1142ms  elapsed=249s
+  28416/29184  gpu=1016ms  elapsed=251s
+  28672/29184  gpu=1017ms  elapsed=253s
+  28928/29184  gpu=1172ms  elapsed=255s
+  29184/29184  gpu=1015ms  elapsed=257s
+  (29184, 768) in 257s = 8.8 ms/frame
+
+wrote /Users/rvnikita/dev/hackathons/modal/out/emb/cup.npz  (78.7 MB)

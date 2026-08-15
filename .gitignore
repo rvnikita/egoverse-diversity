@@ -1,0 +1,23 @@
+.venv/
+.env
+__pycache__/
+*.pyc
+.DS_Store
+.ruff_cache/
+
+# Bulk data: regenerable from the registry, too big to ship.
+out/mp4/
+out/cup_mp4/
+out/clips/
+out/oracle/
+out/samples/
+out/_f/
+out/emb/
+out/*.jpg
+external/
+
+# Personal prep material (audio briefings, the source paper) — not part of the deliverable.
+briefing/
+
+# Everything else under out/ IS the evidence (measurement logs, cost models,
+# the recovered label set) and is tracked on purpose.
