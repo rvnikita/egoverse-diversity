@@ -8,3 +8,4 @@ scipy>=1.14           # connected components for the offline colour detector
 elevenlabs>=2.60      # STT + TTS
 opencv-python>=4.10   # webcam capture (ffmpeg fallback exists)
 sounddevice>=0.5      # mic capture with silence detection (ffmpeg fallback exists)
+segno==1.6.6

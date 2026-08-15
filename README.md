@@ -114,9 +114,12 @@ AWS_PROFILE=egoverse python scripts/build_cup_embeddings.py   # 29,184 frames, 2
 | `scripts/analysis.py` | coverage, falsification sweep, 3D projection, contact sheets |
 | `scripts/llm_judge.py` | the gpt-4o baseline, measured on the same two subsets |
 | `scripts/build_dashboard.py` | renders the dashboard (inline SVG + canvas, no libraries) |
+| `scripts/build_slide.py` | renders the one summary slide |
 | `scripts/cascade_experiment.py` | the keyframe-selection negative result |
 | `docs/egodb-findings.md` | what the registry actually contains, measured today |
 | `docs/decisions.md` | why each choice, including the ones that failed |
+
+`results/slide.html` is the one summary slide (1600x900, self-scaling, QR to this repo).
 
 `scripts/select_experiment.py` additionally measures how each selector's subset performs
 as *training data*. That is Track 1/3 territory and is not part of this submission; it
