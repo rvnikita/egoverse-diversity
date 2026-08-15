@@ -325,7 +325,7 @@ def main() -> int:
   <p class="sub">Every number on the slide above, with the measurement behind it.</p>
   <p class="meta">{A['n_episodes']} <code>cup_on_saucer</code> episodes &#183;
      DINOv2-base on a Modal L4 &#183; <code>python run_all.py</code> regenerates all of it
-     in ~60 s, on a laptop, with no GPU and no credentials</p>
+     in 1-2 minutes, on a laptop, with no GPU and no credentials</p>
 
   <h2>The deliverable: a score that ranks two subsets</h2>
   <div class="grid2">

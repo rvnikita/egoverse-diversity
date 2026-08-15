@@ -226,7 +226,7 @@ def body(A: dict, J: dict) -> str:
       no overlap in {NB['trials']} paired trials.</div>
     <div class="s-qr">{qr_svg()}
       <div><div class="s-repo">github.com/rvnikita/<br>egoverse-diversity</div>
-        <div class="s-repos"><b style="color:#c3c2b7">python run_all.py</b> &#183; ~60 s
+        <div class="s-repos"><b style="color:#c3c2b7">python run_all.py</b> &#183; 1-2 min
           &#183; no GPU, no keys</div></div>
     </div>
   </div>

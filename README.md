@@ -85,7 +85,7 @@ score admiring its own geometry:
 
 ```bash
 pip install -r requirements.txt
-python run_all.py            # ~60 s, CPU only, no credentials, no network
+python run_all.py            # 1-2 min, CPU only, no credentials, no network
 open results/index.html
 ```
 
@@ -131,7 +131,7 @@ AWS_PROFILE=egoverse python scripts/build_cup_embeddings.py   # 29,184 frames, 2
 
 | Path | What |
 |---|---|
-| `run_all.py` | one command, reproduces everything on CPU in ~60 s |
+| `run_all.py` | one command, reproduces everything on CPU in 1-2 min |
 | `results/index.html` | **the deliverable** — slide on screen one, dashboard below |
 | `results/slide.html` | the same slide standalone, for a submission form |
 | `results/episode_vectors.npz` | 912 × 768 pooled DINOv2 vectors + metadata (committed) |
