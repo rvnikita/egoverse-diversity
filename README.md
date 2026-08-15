@@ -7,8 +7,10 @@ A diversity score for video subsets built from vision embeddings — **no text e
 anywhere in the pipeline**. It ranks two subsets, it returns the same answer every time,
 and once the index exists every further question costs nothing.
 
-**[→ open `results/index.html`](results/index.html)** — one page: the summary slide fills
-the first screen, scroll for the evidence behind every number.
+### ▶ [rvnikita.github.io/egoverse-diversity](https://rvnikita.github.io/egoverse-diversity/)
+
+One page: the summary slide fills the first screen, scroll for the evidence behind every
+number. No install needed to look; the command below reproduces every figure on it.
 
 ## The pitch
 
