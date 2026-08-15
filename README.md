@@ -7,10 +7,12 @@ A diversity score for video subsets built from vision embeddings — **no text e
 anywhere in the pipeline**. It ranks two subsets, it returns the same answer every time,
 and once the index exists every further question costs nothing.
 
-### ▶ [rvnikita.github.io/egoverse-diversity](https://rvnikita.github.io/egoverse-diversity/)
+### ▶ [**Open the live page**](https://rvnikita.github.io/egoverse-diversity/) — slide on screen one, evidence below
 
-One page: the summary slide fills the first screen, scroll for the evidence behind every
-number. No install needed to look; the command below reproduces every figure on it.
+[![The summary slide](docs/img/slide.png)](https://rvnikita.github.io/egoverse-diversity/)
+
+*The point cloud rotates and the numbers are live — [open it](https://rvnikita.github.io/egoverse-diversity/).
+No install needed to look; the command below reproduces every figure on it.*
 
 ## The pitch
 
@@ -52,6 +54,11 @@ Selection is **cluster cover** (k-means, then the real episode nearest each cent
 not farthest-point. That choice is deliberate and measured: FPS maximises the score by
 collecting outliers and ends up representing almost nothing. Cluster cover beats random on
 **both** the score and coverage, so the metric and the practical benefit agree.
+
+One frame from each episode in the two subsets — the score made visible. The random grid
+repeats near-identical clips; the diverse grid does not:
+
+![Random 32 vs diverse 32, one frame per episode](docs/img/subsets.png)
 
 On the shared 3D view, **194 episodes are represented only by the diverse pick** against
 **59 only by random** — 3.3× more exclusive coverage for the same budget of 32.
